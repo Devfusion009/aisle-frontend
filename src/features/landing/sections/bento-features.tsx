@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 
+import { AnimatedAuditLog } from '../animations/animated-audit-log';
 import { AnimatedRoleAccess } from '../animations/animated-role-access';
 import { AnimatedTenantIsolation } from '../animations/animated-tenant-isolation';
 import { PipelineVisual } from '../animations/pipeline-visual';
@@ -54,13 +55,7 @@ export function BentoFeatures() {
 
         <FadeIn direction="up" delay={200} className="md:col-span-2">
           <Card eyebrow="Audit log" title="Every query, traceable.">
-            <div className="mt-5 font-mono text-[10px] leading-[1.7] text-zinc-400 space-y-0.5">
-              <div>14:32 · jm@acme · query &quot;Q3 rev&quot; · 3 cites</div>
-              <div>14:31 · ad@acme · upload /board.pdf · 412kb</div>
-              <div>14:29 · md@acme · invite +2 members</div>
-              <div className="text-zinc-600">14:25 · jm@acme · query &quot;PTO&quot; · 1 cite</div>
-              <div className="text-zinc-600">14:18 · ad@acme · revoke api-key #4</div>
-            </div>
+            <AnimatedAuditLog />
           </Card>
         </FadeIn>
       </div>
