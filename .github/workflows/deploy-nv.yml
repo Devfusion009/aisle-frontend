@@ -1,0 +1,82 @@
+name: Deploy Frontend (N. Virginia)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './package-lock.json'
+
+      - name: Install Dependencies & Build
+        run: |
+          npm ci
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NV_NEXT_PUBLIC_API_URL }}" > .env.production
+          npx next build
+
+      - name: Zip Build Artifacts
+        run: |
+          zip -r frontend-build.zip .next public package.json package-lock.json next.config.ts .env.production \
+            -x ".next/cache/*" ".next/dev/*" ".next/trace/*"
+
+      - name: Stop PM2 Before Transfer
+        uses: appleboy/ssh-action@v1.0.3
+        continue-on-error: true
+        with:
+          host: ${{ secrets.NV_FE_EC2_HOST }}
+          username: ${{ secrets.NV_FE_EC2_USER }}
+          key: ${{ secrets.NV_FE_EC2_SSH_KEY }}
+          script: pm2 stop versa-frontend || true
+
+      - name: Copy Files to Lightsail
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.NV_FE_EC2_HOST }}
+          username: ${{ secrets.NV_FE_EC2_USER }}
+          key: ${{ secrets.NV_FE_EC2_SSH_KEY }}
+          source: "./frontend-build.zip"
+          target: "/home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend-temp"
+
+      - name: Deploy on Lightsail
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NV_FE_EC2_HOST }}
+          username: ${{ secrets.NV_FE_EC2_USER }}
+          key: ${{ secrets.NV_FE_EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend
+            cd /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend
+
+            mv /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend-temp/frontend-build.zip .
+            rm -rf /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend-temp
+            unzip -o frontend-build.zip
+            rm frontend-build.zip
+
+            if [ ! -f /swapfile ]; then
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+            fi
+
+            npm ci --omit=dev
+
+            sudo iptables -t nat -C PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3001 2>/dev/null || \
+              sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3001
+
+            pm2 delete versa-frontend || true
+            pm2 start npm --name "versa-frontend" \
+              --cwd /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend \
+              -- run start -- -p 3001
+            pm2 save
