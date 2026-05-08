@@ -177,6 +177,7 @@ export default function SuperAdminAssistantsPage() {
                       isActive ? 'bg-[#06d4ef]/20 text-[#06d4ef]' : 'bg-[#0a0e1a] text-slate-500'
                     }`}>{count}</span>
                   </button>
+                  
                 );
               })}
             </div>
