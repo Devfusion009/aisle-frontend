@@ -69,12 +69,6 @@ export function CtaBand() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
                 </svg>
               </Link>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-white/[0.1] text-zinc-200 font-medium text-[14px] hover:border-white/30 hover:bg-white/[0.04] transition-all"
-              >
-                Book a 20-min walkthrough
-              </Link>
             </div>
           </div>
 
