@@ -61,12 +61,13 @@ function timeAgo(date: string, t: (key: string) => string) {
 }
 
 function CopyButton({ text }: { text: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
       className="p-1.5 rounded-lg text-slate-500 hover:text-[#06d4ef] hover:bg-[#06d4ef]/10 transition-all"
-      title="Copy"
+      title={t('apiKeys.copyTooltip')}
     >
       {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
     </button>

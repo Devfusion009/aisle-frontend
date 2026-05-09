@@ -47,17 +47,17 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, t: (key: string, opts?: any) => string): string {
   const date = new Date(dateStr);
   const now = Date.now();
   const diff = now - date.getTime();
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 30) return `${days}d ago`;
+  if (mins < 1) return t('knowledge.timeAgo.justNow');
+  if (mins < 60) return t('knowledge.timeAgo.minutesAgo', { count: mins });
+  if (hours < 24) return t('knowledge.timeAgo.hoursAgo', { count: hours });
+  if (days < 30) return t('knowledge.timeAgo.daysAgo', { count: days });
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
@@ -305,7 +305,7 @@ function FolderCard({
       {/* Row 2: stats — full card width, never wrapped */}
       {!editing && (
         <p className="text-[12px] text-slate-500 mt-2 pl-12">
-          {docCount} {docCount === 1 ? 'doc' : 'docs'}
+          {docCount} {docCount === 1 ? t('knowledge.doc') : t('knowledge.docs')}
           {size !== '0 B' && <span className="text-slate-600 mx-1.5">·</span>}
           {size !== '0 B' && size}
         </p>
@@ -373,7 +373,7 @@ function UserAccessSection({ datasetId }: { datasetId: string }) {
       globalMutate('/knowledge/my-datasets', undefined, { revalidate: true });
       setAccessMap((prev) => ({ ...prev, [userId]: !prev[userId] }));
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to update access', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('knowledge.failedUpdateAccess'), { variant: 'danger' });
     } finally {
       setSaving(null);
     }
@@ -387,7 +387,7 @@ function UserAccessSection({ datasetId }: { datasetId: string }) {
         </div>
         <div className="flex-1">
           <h2 className="text-[13px] font-semibold text-slate-200">{t('knowledge.userAccess')}</h2>
-          <p className="text-[11px] text-slate-500">{t('knowledge.userAccessHint') || 'High-priority users only'}</p>
+          <p className="text-[11px] text-slate-500">{t('knowledge.userAccessHint')}</p>
         </div>
       </div>
       {!loaded ? (
@@ -401,8 +401,8 @@ function UserAccessSection({ datasetId }: { datasetId: string }) {
           <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-1">
             <Star className="h-6 w-6 text-slate-600" />
           </div>
-          <p className="text-[13px] text-slate-400">{t('knowledge.noHighPriorityUsers') || 'No high-priority users yet'}</p>
-          <p className="text-[11px] text-slate-600 max-w-xs text-center">{t('knowledge.noHighPriorityUsersHint') || 'Mark users as high priority in Users settings to manage their dataset access'}</p>
+          <p className="text-[13px] text-slate-400">{t('knowledge.noHighPriorityUsers')}</p>
+          <p className="text-[11px] text-slate-600 max-w-xs text-center">{t('knowledge.noHighPriorityUsersHint')}</p>
         </div>
       ) : (
         <div className="divide-y divide-slate-800/60">
@@ -446,9 +446,11 @@ function UserAccessSection({ datasetId }: { datasetId: string }) {
               <AlertTriangle className="h-6 w-6 text-amber-500" />
             </div>
             <div className="text-center mb-6">
-              <h3 className="text-[16px] font-semibold text-slate-100 mb-2">{t('knowledge.confirmAccessTitle', 'Confirm Access Change')}</h3>
+              <h3 className="text-[16px] font-semibold text-slate-100 mb-2">{t('knowledge.confirmAccessTitle')}</h3>
               <p className="text-[13px] text-slate-400">
-                Are you sure you want to {confirmUser.willHaveAccess ? <span className="text-emerald-400 font-medium">grant</span> : <span className="text-red-400 font-medium">remove</span>} knowledge base access for <span className="text-slate-200 font-semibold">{confirmUser.name}</span>?
+                {confirmUser.willHaveAccess
+                  ? t('knowledge.confirmAccessGrant', { name: confirmUser.name })
+                  : t('knowledge.confirmAccessRemove', { name: confirmUser.name })}
               </p>
             </div>
             <div className="flex gap-3">
@@ -456,7 +458,7 @@ function UserAccessSection({ datasetId }: { datasetId: string }) {
                 onClick={() => setConfirmUser(null)}
                 className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-[13px] font-medium hover:bg-slate-800 transition-colors"
               >
-                {t('common.cancel', 'Cancel')}
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => {
@@ -465,7 +467,7 @@ function UserAccessSection({ datasetId }: { datasetId: string }) {
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-semibold transition-colors flex items-center justify-center"
               >
-                {t('common.confirm', 'Confirm')}
+                {t('common.confirm')}
               </button>
             </div>
           </div>
@@ -567,7 +569,7 @@ export default function KnowledgePage() {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } catch (err: any) {
-        const msg = err.response?.data?.message || 'Upload failed';
+        const msg = err.response?.data?.message || t('knowledge.uploadFailed');
         if (err.response?.status === 403) {
           setLimitError(msg);
         } else {
@@ -630,7 +632,7 @@ export default function KnowledgePage() {
         window.open(url, '_blank');
       }
     } catch {
-      showAlert('Failed to open document', { variant: 'danger' });
+      showAlert(t('knowledge.failedOpenDocument'), { variant: 'danger' });
     }
   };
 
@@ -644,7 +646,7 @@ export default function KnowledgePage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      showAlert('Failed to download document', { variant: 'danger' });
+      showAlert(t('knowledge.failedDownloadDocument'), { variant: 'danger' });
     }
   };
 
@@ -655,7 +657,7 @@ export default function KnowledgePage() {
       await api.delete(`/knowledge/${id}`);
       mutate();
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Delete failed', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('knowledge.failedDeleteDocument'), { variant: 'danger' });
     } finally {
       setDeleting(null);
     }
@@ -805,7 +807,7 @@ export default function KnowledgePage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                 <input
                   type="text"
-                  placeholder={t('common.search') || 'Search documents...'}
+                  placeholder={t('knowledge.searchDocsPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-[#111315] border border-slate-700/60 rounded-lg pl-9 pr-3 py-2 text-[12px] text-slate-300 placeholder:text-slate-600 outline-none focus:border-slate-600 transition-colors"
@@ -822,8 +824,8 @@ export default function KnowledgePage() {
                       <th className="px-5 py-3">{t('knowledge.dataset')}</th>
                       <th className="px-5 py-3">{t('knowledge.size')}</th>
                       <th className="px-5 py-3">{t('knowledge.status')}</th>
-                      <th className="px-5 py-3">Uploaded By</th>
-                      <th className="px-5 py-3">Last Changed</th>
+                      <th className="px-5 py-3">{t('knowledge.uploadedBy')}</th>
+                      <th className="px-5 py-3">{t('knowledge.lastChanged')}</th>
                       <th className="px-5 py-3 text-right">{t('common.actions')}</th>
                     </tr>
                   </thead>
@@ -841,8 +843,8 @@ export default function KnowledgePage() {
                 <div className="flex flex-col items-center py-14 gap-3">
                   <ShieldAlert className="h-9 w-9 text-slate-600" />
                   <p className="text-slate-500 text-[13px] text-center leading-relaxed">
-                    You don&apos;t have access to view documents.<br />
-                    Ask an administrator to grant you dataset access.
+                    {t('knowledge.noAccessTitle')}<br />
+                    {t('knowledge.noAccessHint')}
                   </p>
                 </div>
               ) : (
@@ -857,7 +859,7 @@ export default function KnowledgePage() {
                   <FileText className="h-7 w-7 text-slate-600" />
                 </div>
                 <p className="text-[13px] text-slate-500">
-                  {searchQuery ? t('common.noResults') || 'No matching documents' : t('knowledge.noDocuments')}
+                  {searchQuery ? t('knowledge.noMatchingDocs') : t('knowledge.noDocuments')}
                 </p>
               </div>
             ) : (
@@ -869,8 +871,8 @@ export default function KnowledgePage() {
                       <th className="px-5 py-3">{t('knowledge.dataset')}</th>
                       <th className="px-5 py-3">{t('knowledge.size')}</th>
                       <th className="px-5 py-3">{t('knowledge.status')}</th>
-                      <th className="px-5 py-3">Uploaded By</th>
-                      <th className="px-5 py-3">Last Changed</th>
+                      <th className="px-5 py-3">{t('knowledge.uploadedBy')}</th>
+                      <th className="px-5 py-3">{t('knowledge.lastChanged')}</th>
                       <th className="px-5 py-3 text-right">{t('common.actions')}</th>
                     </tr>
                   </thead>
@@ -911,7 +913,7 @@ export default function KnowledgePage() {
                               className="text-[12px] text-slate-400 tabular-nums"
                               title={new Date(doc.updatedAt).toLocaleString()}
                             >
-                              {formatRelativeTime(doc.updatedAt)}
+                              {formatRelativeTime(doc.updatedAt, t)}
                             </span>
                           </td>
                           <td className="px-5 py-3.5 text-right">

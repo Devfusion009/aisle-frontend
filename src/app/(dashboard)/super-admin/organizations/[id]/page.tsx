@@ -205,7 +205,7 @@ export default function OrganizationDetailPage() {
                             <span className="text-sm text-slate-400">{t('superAdmin.adminConsole')}</span>
                             <span className="text-slate-600">/</span>
                             <span className="text-sm font-semibold text-slate-100 truncate max-w-[200px]">
-                                {tenant?.name || 'Organization'}
+                                {tenant?.name || t('common.organization')}
                             </span>
                         </div>
                     </div>
@@ -310,7 +310,7 @@ export default function OrganizationDetailPage() {
                                         required
                                         value={editForm.name}
                                         onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                        placeholder="e.g. Acme Corporation"
+                                        placeholder={t('superAdmin.orgNamePlaceholder')}
                                         className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-500/40"
                                     />
                                 </div>
@@ -320,7 +320,7 @@ export default function OrganizationDetailPage() {
                                         required
                                         value={editForm.slug}
                                         onChange={(e) => setEditForm({ ...editForm, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                                        placeholder="e.g. acme"
+                                        placeholder={t('superAdmin.slugPlaceholder')}
                                         className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-500/40"
                                     />
                                 </div>
@@ -441,7 +441,7 @@ export default function OrganizationDetailPage() {
                                                         <button 
                                                             onClick={() => handleDeleteUser(u.id)}
                                                             className="text-slate-500 hover:text-red-400 transition-colors p-1"
-                                                            title="Delete User"
+                                                            title={t('superAdmin.deleteUserTitle')}
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </button>

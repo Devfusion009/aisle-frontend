@@ -156,9 +156,9 @@ export default function SuperAdminTenantsPage() {
 
   const PLAN_TABS: Array<{ key: 'all' | 'starter' | 'business' | 'enterprise'; label: string }> = [
     { key: 'all', label: t('superAdmin.allPlans', 'All') },
-    { key: 'starter', label: 'Starter' },
-    { key: 'business', label: 'Business' },
-    { key: 'enterprise', label: 'Enterprise' },
+    { key: 'starter', label: t('billing.starter') },
+    { key: 'business', label: t('billing.business') },
+    { key: 'enterprise', label: t('billing.enterprise') },
   ];
 
   return (
@@ -263,7 +263,7 @@ export default function SuperAdminTenantsPage() {
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold text-slate-100">{group.tenant.name}</h3>
                           <span className="text-[9px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-[#5c6d86]/20 text-slate-300 border border-[#5c6d86]/20">
-                            {group.tenant.plan || 'starter'}
+                            {t('billing.' + (group.tenant.plan || 'starter'))}
                           </span>
                         </div>
                         <p className="text-xs text-slate-400 font-medium" style={{ color: color.accent }}>{group.tenant.slug}</p>
@@ -317,7 +317,7 @@ export default function SuperAdminTenantsPage() {
                            ? (group.tenant.tokensConsumed / 1000).toFixed(1) + 'k' 
                            : group.tenant.tokensConsumed}
                        </span>
-                       <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">Tokens</span>
+                       <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">{t('analytics.tokens')}</span>
                      </div>
                   </div>
                     );
@@ -369,7 +369,7 @@ export default function SuperAdminTenantsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-100">{t('superAdmin.registerOrg')}</h2>
-                  <p className="text-xs mt-0.5 text-slate-500">Criar um novo tenant organizacional</p>
+                  <p className="text-xs mt-0.5 text-slate-500">{t('superAdmin.newTenantSubtitle')}</p>
                 </div>
                 <button onClick={() => setShowRegisterOrg(false)} className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors">
                   <X className="h-4 w-4 text-slate-500" />
@@ -380,12 +380,12 @@ export default function SuperAdminTenantsPage() {
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.orgName')}</Label>
                   <Input required value={tenantForm.name} onChange={e => setTenantForm({ ...tenantForm, name: e.target.value })}
-                    placeholder="ex: Acme Corporation" className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
+                    placeholder={t('superAdmin.orgNamePlaceholder')} className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.slug')}</Label>
                   <Input required value={tenantForm.slug} onChange={e => setTenantForm({ ...tenantForm, slug: e.target.value })}
-                    placeholder="ex: acme" className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
+                    placeholder={t('superAdmin.slugPlaceholder')} className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.plan')}</Label>
@@ -394,9 +394,9 @@ export default function SuperAdminTenantsPage() {
                     value={tenantForm.plan}
                     onChange={e => setTenantForm({ ...tenantForm, plan: e.target.value })}
                   >
-                    <option value="starter">Starter</option>
-                    <option value="business">Business</option>
-                    <option value="enterprise">Enterprise</option>
+                    <option value="starter">{t('billing.starter')}</option>
+                    <option value="business">{t('billing.business')}</option>
+                    <option value="enterprise">{t('billing.enterprise')}</option>
                   </select>
                 </div>
                 <Button type="submit" className="w-full bg-[#06d4ef] hover:bg-[#06d4ef]/90 text-white h-9 text-sm">

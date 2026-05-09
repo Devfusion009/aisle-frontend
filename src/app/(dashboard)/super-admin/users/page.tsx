@@ -76,7 +76,7 @@ export default function SuperAdminUsersPage() {
         payload.tenantId = userForm.tenantId;
       } else {
         if (!userForm.newTenantName || !userForm.newTenantSlug) {
-          showAlert('Por favor, forneça o nome da organização e o slug.', { variant: 'warning' });
+          showAlert(t('superAdmin.needOrgInfo'), { variant: 'warning' });
           return;
         }
         payload.newTenantName = userForm.newTenantName;
@@ -92,9 +92,9 @@ export default function SuperAdminUsersPage() {
   };
 
   const getTenantName = (tenantId: string) => {
-    if (!tenantId) return 'System';
-    const t = tenants.find((tx: any) => tx.id === tenantId);
-    return t ? t.name : 'Unknown';
+    if (!tenantId) return t('superAdmin.systemUser');
+    const found = tenants.find((tx: any) => tx.id === tenantId);
+    return found ? found.name : t('superAdmin.unknownUser');
   };
 
   const userList = users || [];
@@ -185,7 +185,7 @@ export default function SuperAdminUsersPage() {
                  type="text"
                  value={searchQuery}
                  onChange={e => setSearchQuery(e.target.value)}
-                 placeholder="Search by name, email or tenant…"
+                 placeholder={t('superAdmin.userSearchPlaceholder')}
                  className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#111827] border border-[#1e293b] text-xs text-slate-200 placeholder:text-slate-600 outline-none focus:border-cyan-500/50 transition-colors"
                />
                {searchQuery && (
@@ -252,7 +252,7 @@ export default function SuperAdminUsersPage() {
                         <td className="px-5 py-3.5">
                           {u.role === UserRole.PLATFORM_ADMIN ? (
                               <span className="flex items-center gap-1.5 text-[11px] font-semibold text-red-500">
-                                {u.role.replace('_', ' ').toUpperCase()}
+                                {t('superAdmin.roles.' + u.role)}
                               </span>
                           ) : (
                               <select
@@ -263,10 +263,10 @@ export default function SuperAdminUsersPage() {
                                       color: u.role === UserRole.TENANT_OWNER ? '#0ea5e9' : (u.role === UserRole.TENANT_ADMIN ? '#8b5cf6' : (u.role === UserRole.EDITOR ? '#f59e0b' : '#64748b'))
                                   }}
                               >
-                                  <option className="text-slate-900" value={UserRole.TENANT_OWNER}>TENANT OWNER</option>
-                                  <option className="text-slate-900" value={UserRole.TENANT_ADMIN}>TENANT ADMIN</option>
-                                  <option className="text-slate-900" value={UserRole.EDITOR}>EDITOR</option>
-                                  <option className="text-slate-900" value={UserRole.USER}>USER</option>
+                                  <option className="text-slate-900" value={UserRole.TENANT_OWNER}>{t('superAdmin.roles.tenant_owner')}</option>
+                                  <option className="text-slate-900" value={UserRole.TENANT_ADMIN}>{t('superAdmin.roles.tenant_admin')}</option>
+                                  <option className="text-slate-900" value={UserRole.EDITOR}>{t('superAdmin.roles.editor')}</option>
+                                  <option className="text-slate-900" value={UserRole.USER}>{t('superAdmin.roles.user')}</option>
                               </select>
                           )}
                         </td>
@@ -274,7 +274,7 @@ export default function SuperAdminUsersPage() {
                            <span className="text-[10px] uppercase font-bold text-emerald-500">{t('superAdmin.active')}</span>
                         </td>
                         <td className="px-5 py-3.5 text-right">
-                           <button onClick={() => handleDeleteUser(u.id)} className="text-slate-500 hover:text-red-400 transition-colors p-1" title="Delete User">
+                           <button onClick={() => handleDeleteUser(u.id)} className="text-slate-500 hover:text-red-400 transition-colors p-1" title={t('superAdmin.deleteUserTooltip')}>
                              <Trash2 className="h-4 w-4" />
                            </button>
                         </td>
@@ -312,24 +312,24 @@ export default function SuperAdminUsersPage() {
                   <ShieldAlert className="h-5 w-5 text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-slate-100">Change Role?</h3>
-                  <p className="text-[12px] text-slate-400 mt-0.5">This action will immediately take effect.</p>
+                  <h3 className="text-[15px] font-semibold text-slate-100">{t('superAdmin.changeRoleTitle')}</h3>
+                  <p className="text-[12px] text-slate-400 mt-0.5">{t('superAdmin.changeRoleBody')}</p>
                 </div>
               </div>
 
               {/* Detail card */}
               <div className="rounded-xl bg-[#0d1117] border border-[#1e293b] p-4 space-y-2.5 text-[12px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-500">User</span>
+                  <span className="text-slate-500">{t('superAdmin.user')}</span>
                   <span className="text-slate-200 font-medium">{pendingRoleChange.userName}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Current role</span>
-                  <span className="text-slate-400 font-semibold">{pendingRoleChange.currentRole.replace(/_/g, ' ')}</span>
+                  <span className="text-slate-500">{t('superAdmin.currentRole')}</span>
+                  <span className="text-slate-400 font-semibold">{t('superAdmin.roles.' + pendingRoleChange.currentRole)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-500">New role</span>
-                  <span className="font-bold text-cyan-400">{pendingRoleChange.newRole.replace(/_/g, ' ')}</span>
+                  <span className="text-slate-500">{t('superAdmin.newRole')}</span>
+                  <span className="font-bold text-cyan-400">{t('superAdmin.roles.' + pendingRoleChange.newRole)}</span>
                 </div>
               </div>
 
@@ -340,7 +340,7 @@ export default function SuperAdminUsersPage() {
                   disabled={roleChanging}
                   className="flex-1 h-9 rounded-lg border border-[#2d3748] text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[12px] font-semibold transition-colors disabled:opacity-40"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={confirmRoleChange}
@@ -348,7 +348,7 @@ export default function SuperAdminUsersPage() {
                   className="flex-1 h-9 rounded-lg bg-amber-500/90 hover:bg-amber-500 text-black text-[12px] font-bold transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
                 >
                   {roleChanging && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Yes, change role
+                  {t('superAdmin.yesChangeRole')}
                 </button>
               </div>
             </div>
@@ -364,7 +364,7 @@ export default function SuperAdminUsersPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-100">{t('superAdmin.provisionUser')}</h2>
-                  <p className="text-xs mt-0.5 text-slate-500">Criar um usuário e atribuir a um tenant</p>
+                  <p className="text-xs mt-0.5 text-slate-500">{t('superAdmin.newUserSubtitle')}</p>
                 </div>
                 <button onClick={() => setShowProvision(false)} className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors">
                   <X className="h-4 w-4 text-slate-500" />
@@ -375,12 +375,12 @@ export default function SuperAdminUsersPage() {
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.fullName')}</Label>
                   <Input required value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })}
-                    placeholder="ex: João Silva" className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
+                    placeholder={t('superAdmin.fullNamePlaceholder')} className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.email')}</Label>
                   <Input required type="email" value={userForm.email} onChange={e => setUserForm({ ...userForm, email: e.target.value })}
-                    placeholder="ex: joao@empresa.com" className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
+                    placeholder={t('superAdmin.emailPlaceholder')} className="h-9 bg-[#1e293b] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.password')}</Label>
@@ -419,12 +419,12 @@ export default function SuperAdminUsersPage() {
                       <div className="space-y-1.5">
                         <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.orgNameField')}</Label>
                         <Input required value={userForm.newTenantName} onChange={e => setUserForm({ ...userForm, newTenantName: e.target.value })}
-                          placeholder="ex: Acme Corp" className="h-8 text-sm bg-[#111827] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
+                          placeholder={t('superAdmin.orgNameFieldPlaceholder')} className="h-8 text-sm bg-[#111827] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('superAdmin.urlSlug')}</Label>
                         <Input required value={userForm.newTenantSlug} onChange={e => setUserForm({ ...userForm, newTenantSlug: e.target.value })}
-                          placeholder="ex: acme" className="h-8 text-sm bg-[#111827] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
+                          placeholder={t('superAdmin.urlSlugPlaceholder')} className="h-8 text-sm bg-[#111827] border-[#2d3748] text-slate-200 placeholder:text-slate-600" />
                       </div>
                     </div>
                   )}

@@ -439,14 +439,14 @@ export function Sidebar() {
           {logoSrc ? (
             <img
               src={logoSrc}
-              alt="Org logo"
+              alt={t('common.logoAlt')}
               className="h-8 w-8 rounded-lg object-cover shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 shrink-0"
             />
           ) : (
             <VerseLogoBoxed className="h-8 w-8" iconClassName="w-5 h-5" />
           )}
           <span className="tracking-tight text-[15px] font-semibold truncate">
-            {user?.role === UserRole.PLATFORM_ADMIN ? 'Verse AI' : (tenantInfo?.name || t('common.logo'))}
+            {user?.role === UserRole.PLATFORM_ADMIN ? t('common.verseAi') : (tenantInfo?.name || t('common.logo'))}
           </span>
         </Link>
         <div className="flex items-center gap-1">

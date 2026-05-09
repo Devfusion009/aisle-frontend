@@ -1,14 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Phase = 'idle' | 'processing' | 'done' | 'live';
 
-const STEPS = [
-  { cmd: 'upload',   arg: '/handbook.pdf',  result: '4.2 MB → indexed',   badge: 'INDEXED', ms: 900  },
-  { cmd: 'chunk',    arg: 'stride=512',      result: '84 chunks',          badge: 'DONE',    ms: 700  },
-  { cmd: 'embed',    arg: 'text-3-large',    result: '84 × 3 072d',        badge: 'DONE',    ms: 1000 },
-  { cmd: 'retrieve', arg: 'top_k=8 + cite',  result: 'streaming answer…',  badge: 'LIVE',    ms: 0    },
+type StepKey = 'upload' | 'chunk' | 'embed' | 'retrieve';
+
+const STEPS: { cmd: StepKey; arg: string; ms: number }[] = [
+  { cmd: 'upload',   arg: '/handbook.pdf',  ms: 900  },
+  { cmd: 'chunk',    arg: 'stride=512',      ms: 700  },
+  { cmd: 'embed',    arg: 'text-3-large',    ms: 1000 },
+  { cmd: 'retrieve', arg: 'top_k=8 + cite',  ms: 0    },
 ];
 
 function CheckIcon() {
@@ -28,8 +31,27 @@ function Spinner() {
 }
 
 export function PipelineVisual() {
+  const { t } = useTranslation();
   const ref  = useRef<HTMLDivElement>(null);
   const [phases, setPhases] = useState<Phase[]>(['idle', 'idle', 'idle', 'idle']);
+
+  const stepResult = (cmd: StepKey): string => {
+    switch (cmd) {
+      case 'upload':   return t('landing.pipeline.uploadResult', { size: '4.2 MB' });
+      case 'chunk':    return t('landing.pipeline.chunkResult', { count: 84 });
+      case 'embed':    return t('landing.pipeline.embedResult');
+      case 'retrieve': return t('landing.pipeline.retrieveResult');
+    }
+  };
+
+  const stepBadge = (cmd: StepKey): string => {
+    switch (cmd) {
+      case 'upload':   return t('landing.pipeline.badgeIndexed');
+      case 'chunk':    return t('landing.pipeline.badgeDone');
+      case 'embed':    return t('landing.pipeline.badgeDone');
+      case 'retrieve': return t('landing.pipeline.badgeLive');
+    }
+  };
 
   useEffect(() => {
     const el = ref.current;
@@ -146,7 +168,7 @@ export function PipelineVisual() {
                     className={`ml-1 shrink-0 ${isLive ? 'text-violet-300/80' : 'text-zinc-500'}`}
                     style={{ animation: 'pv-fadein 0.35s ease forwards' }}
                   >
-                    → <span className={isLive ? 'text-violet-200' : 'text-zinc-400'}>{step.result}</span>
+                    → <span className={isLive ? 'text-violet-200' : 'text-zinc-400'}>{stepResult(step.cmd)}</span>
                   </span>
                 )}
               </div>
@@ -161,7 +183,7 @@ export function PipelineVisual() {
                   isDone ? 'text-emerald-400' :
                   isProc ? 'text-zinc-500' : 'text-zinc-800'
                 }`}>
-                  {isProc ? 'running' : isIdle ? '···' : step.badge}
+                  {isProc ? t('landing.pipeline.running') : isIdle ? '···' : stepBadge(step.cmd)}
                 </span>
               </div>
             </div>
@@ -172,7 +194,7 @@ export function PipelineVisual() {
       {/* connector line + bottom hint */}
       <div className="flex items-center gap-2 pt-1 pl-1 opacity-40">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
-        <span className="text-emerald-400/80 text-[10px] tracking-wide">pipeline active · 0 ms avg latency</span>
+        <span className="text-emerald-400/80 text-[10px] tracking-wide">{t('landing.pipeline.footerHint')}</span>
       </div>
 
       <style>{`

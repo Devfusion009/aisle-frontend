@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Bot, User, ExternalLink, AlertCircle, Loader2 } from 'lucide-react';
@@ -46,6 +47,7 @@ function MessageBubble({ msg }: { msg: SharedMessage }) {
 }
 
 export default function SharedConversationPage() {
+  const { t } = useTranslation();
   const params = useParams();
   const token = params.token as string;
 
@@ -76,10 +78,10 @@ export default function SharedConversationPage() {
               <Bot className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="text-[13px] font-semibold text-slate-300 truncate">
-              {data?.title ?? 'Shared Conversation'}
+              {data?.title ?? t('sharePage.fallbackTitle')}
             </span>
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-700/60 text-slate-500 border border-slate-700 shrink-0">
-              View only
+              {t('sharePage.viewOnly')}
             </span>
           </div>
           <Link
@@ -97,7 +99,7 @@ export default function SharedConversationPage() {
         {loading && (
           <div className="flex flex-col items-center justify-center gap-3 py-32 text-slate-500">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-[13px]">Loading conversation…</span>
+            <span className="text-[13px]">{t('sharePage.loading')}</span>
           </div>
         )}
 
@@ -107,9 +109,9 @@ export default function SharedConversationPage() {
               <AlertCircle className="h-7 w-7 text-slate-500" />
             </div>
             <div>
-              <p className="text-[16px] font-semibold text-slate-300 mb-1">Conversation not found</p>
+              <p className="text-[16px] font-semibold text-slate-300 mb-1">{t('sharePage.notFoundTitle')}</p>
               <p className="text-[13px] text-slate-500 max-w-xs">
-                This link may have expired or sharing was turned off by the owner.
+                {t('sharePage.notFoundDesc')}
               </p>
             </div>
           </div>
@@ -118,7 +120,7 @@ export default function SharedConversationPage() {
         {!loading && error === 'error' && (
           <div className="flex flex-col items-center justify-center gap-4 py-32 text-center">
             <AlertCircle className="h-7 w-7 text-red-400" />
-            <p className="text-[13px] text-slate-400">Failed to load conversation. Please try again later.</p>
+            <p className="text-[13px] text-slate-400">{t('sharePage.loadFailed')}</p>
           </div>
         )}
 
@@ -131,14 +133,14 @@ export default function SharedConversationPage() {
                   <Bot className="h-3 w-3 text-[#06d4ef]" />
                 </div>
                 <span className="text-[12px] text-slate-500">
-                  Conversation with <span className="text-slate-300 font-medium">{data.assistantName}</span>
+                  {t('sharePage.conversationWith')} <span className="text-slate-300 font-medium">{data.assistantName}</span>
                 </span>
               </div>
             )}
 
             {/* Messages */}
             {data.messages.length === 0 ? (
-              <div className="text-center py-20 text-slate-600 text-[13px]">No messages in this conversation.</div>
+              <div className="text-center py-20 text-slate-600 text-[13px]">{t('sharePage.noMessages')}</div>
             ) : (
               <div className="space-y-5">
                 {data.messages.map((msg) => (
@@ -150,7 +152,7 @@ export default function SharedConversationPage() {
             {/* Footer note */}
             <div className="mt-10 pt-6 border-t border-white/[0.05] flex items-center justify-center gap-2 text-[11px] text-slate-600">
               <Bot className="h-3 w-3" />
-              Shared via <span className="text-slate-500 font-medium">verse.ai</span> · Read-only view
+              {t('sharePage.sharedVia')} <span className="text-slate-500 font-medium">verse.ai</span> · {t('sharePage.readOnlyView')}
             </div>
           </>
         )}

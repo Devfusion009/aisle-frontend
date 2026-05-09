@@ -206,7 +206,7 @@ export default function DashboardLayout({
           {/* Expand toggle */}
           <button
             onClick={toggle}
-            title="Open sidebar"
+            title={t('common.openSidebar')}
             className="p-2.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer mb-2"
           >
             <PanelLeft className="h-[18px] w-[18px]" />
@@ -296,7 +296,7 @@ export default function DashboardLayout({
           <button
             type="button"
             onClick={() => setMobileSidebarOpen(true)}
-            aria-label="Open navigation"
+            aria-label={t('common.openNavigation')}
             className="h-10 w-10 inline-flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-colors active:scale-95"
           >
             <Menu className="h-5 w-5" />
@@ -304,7 +304,7 @@ export default function DashboardLayout({
           <Link href={user ? '/' : '/login'} className="flex items-center gap-2 min-w-0">
             <VerseLogoBoxed className="h-7 w-7" iconClassName="w-4 h-4" />
             <span className="font-semibold text-[14px] tracking-tight text-slate-800 dark:text-slate-100 truncate max-w-[180px]">
-              {isSuperAdmin ? 'Verse AI' : (tenantInfo?.name || 'Verse AI')}
+              {isSuperAdmin ? t('common.verseAi') : (tenantInfo?.name || t('common.verseAi'))}
             </span>
           </Link>
           <button

@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/use-auth-store';
 import { homePathFor } from '@/lib/rbac';
 import { ShieldAlert } from 'lucide-react';
 
 export default function ForbiddenPage() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const home = homePathFor(user);
 
@@ -17,17 +19,16 @@ export default function ForbiddenPage() {
             <ShieldAlert className="h-7 w-7 text-red-400" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-slate-100">403 — Forbidden</h1>
+            <h1 className="text-lg font-semibold text-slate-100">{t('forbidden.title')}</h1>
             <p className="mt-2 text-[13px] text-slate-400">
-              You don&apos;t have permission to view this page. If you believe this is a mistake,
-              contact an administrator.
+              {t('forbidden.description')}
             </p>
           </div>
           <Link
             href={home}
             className="w-full rounded-xl bg-gradient-to-r from-[#06d4ef] to-[#06b4ef] py-2.5 text-center text-[13px] font-semibold text-white hover:opacity-90 transition-opacity"
           >
-            Back to home
+            {t('forbidden.backHome')}
           </Link>
         </div>
       </div>

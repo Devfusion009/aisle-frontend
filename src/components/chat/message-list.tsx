@@ -265,7 +265,7 @@ export function MessageList({ messages, isLoading, isMessagesLoading, streamingC
                 <span className="w-1.5 h-1.5 bg-[#06d4ef] rounded-full animate-bounce" />
               </span>
               <span className="text-[13.5px] text-slate-500 dark:text-slate-400 font-medium animate-pulse">
-                Analyzing image…
+                {t('chat.analyzingImage')}
               </span>
             </div>
           ) : (

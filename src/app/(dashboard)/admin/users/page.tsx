@@ -33,13 +33,6 @@ interface Dataset {
 
 const fetcher = (url: string) => api.get(url).then((r: any) => r.data);
 
-const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
-  { value: UserRole.USER, label: 'User' },
-  { value: UserRole.EDITOR, label: 'Editor' },
-  { value: UserRole.TENANT_ADMIN, label: 'Admin' },
-  { value: UserRole.TENANT_OWNER, label: 'Owner' },
-];
-
 const isAdminRole = (role: UserRole) =>
   role === UserRole.TENANT_ADMIN || role === UserRole.TENANT_OWNER;
 
@@ -99,7 +92,7 @@ function DatasetAccessModal({
       globalMutate('/knowledge/my-datasets', undefined, { revalidate: true });
       onClose();
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to save', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('users.failedSave'), { variant: 'danger' });
     } finally {
       setSaving(false);
       setShowConfirm(false);
@@ -126,13 +119,13 @@ function DatasetAccessModal({
             <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
               <AlertTriangle className="h-6 w-6 text-amber-500 mx-auto mb-2" />
               <p className="text-sm text-slate-200 font-medium">{t('users.confirmAccessChange', 'Confirm Access Change')}</p>
-              <p className="text-xs text-slate-400 mt-1">Are you sure you want to update knowledge base access for <span className="text-slate-200 font-semibold">{user.name}</span>?</p>
+              <p className="text-xs text-slate-400 mt-1">{t('users.confirmAccessUpdate', { name: user.name })}</p>
             </div>
             
             <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
               {added.length > 0 && (
                 <div className="text-left bg-[#111315] p-3 rounded-lg border border-emerald-500/20">
-                  <p className="text-[12px] font-semibold text-emerald-400 mb-1.5 flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Granting Access:</p>
+                  <p className="text-[12px] font-semibold text-emerald-400 mb-1.5 flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> {t('users.grantingAccess')}</p>
                   <ul className="text-[12px] text-slate-300 space-y-1 pl-1">
                     {added.map(d => <li key={d.id} className="truncate">• {d.name}</li>)}
                   </ul>
@@ -140,7 +133,7 @@ function DatasetAccessModal({
               )}
               {removed.length > 0 && (
                 <div className="text-left bg-[#111315] p-3 rounded-lg border border-red-500/20">
-                  <p className="text-[12px] font-semibold text-red-400 mb-1.5 flex items-center gap-1.5"><X className="h-3.5 w-3.5" /> Removing Access:</p>
+                  <p className="text-[12px] font-semibold text-red-400 mb-1.5 flex items-center gap-1.5"><X className="h-3.5 w-3.5" /> {t('users.removingAccess')}</p>
                   <ul className="text-[12px] text-slate-300 space-y-1 pl-1">
                     {removed.map(d => <li key={d.id} className="truncate">• {d.name}</li>)}
                   </ul>
@@ -240,6 +233,12 @@ export default function AdminUsersPage() {
   const { confirm, showAlert } = useDialog();
   const isOwner = currentUser?.role === UserRole.TENANT_OWNER;
   const isAdmin = currentUser?.role === UserRole.TENANT_ADMIN;
+  const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
+    { value: UserRole.USER, label: t('users.roleOptions.user') },
+    { value: UserRole.EDITOR, label: t('users.roleOptions.editor') },
+    { value: UserRole.TENANT_ADMIN, label: t('users.roleOptions.admin') },
+    { value: UserRole.TENANT_OWNER, label: t('users.roleOptions.owner') },
+  ];
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', password: '', role: UserRole.USER as UserRole, priority: UserPriority.LOW as UserPriority });
@@ -253,7 +252,7 @@ export default function AdminUsersPage() {
   const handleCreate = async () => {
     if (!form.name || !form.email || !form.password) return;
     if (!isValidEmail(form.email)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError(t('users.validateEmail'));
       return;
     }
     setCreating(true);
@@ -264,7 +263,7 @@ export default function AdminUsersPage() {
       setEmailError('');
       setForm({ name: '', email: '', password: '', role: UserRole.USER, priority: UserPriority.LOW });
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to create user', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('users.failedCreate'), { variant: 'danger' });
     } finally {
       setCreating(false);
     }
@@ -283,7 +282,7 @@ export default function AdminUsersPage() {
       mutate();
       setConfirmPriority(null);
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to update', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('users.failedUpdate'), { variant: 'danger' });
     } finally {
       setUpdatingPriority(false);
     }
@@ -294,7 +293,7 @@ export default function AdminUsersPage() {
       await api.patch(`/tenant-users/${user.id}`, { isActive: !user.isActive });
       mutate();
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to update', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('users.failedUpdate'), { variant: 'danger' });
     }
   };
 
@@ -304,7 +303,7 @@ export default function AdminUsersPage() {
       await api.delete(`/tenant-users/${id}`);
       mutate();
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to delete', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('users.failedDelete'), { variant: 'danger' });
     }
   };
 
@@ -393,7 +392,7 @@ export default function AdminUsersPage() {
                 {isOwner && ownerExists && (
                   <p className="text-[11px] text-amber-400/80 flex items-center gap-1 col-span-full mt-1">
                     <AlertTriangle className="h-3 w-3" />
-                    Owner role is unavailable — a tenant can only have one owner.
+                    {t('users.ownerOnlyOne')}
                   </p>
                 )}
               </div>
@@ -413,7 +412,7 @@ export default function AdminUsersPage() {
                 {isEditorRole(form.role) && (
                   <span className="inline-flex items-center gap-1.5 text-[12px] text-emerald-400">
                     <Shield className="h-3.5 w-3.5" />
-                    Editors have full knowledge base access by default
+                    {t('users.editorsHaveFullAccess')}
                   </span>
                 )}
                 <div className="flex-1" />
@@ -497,7 +496,7 @@ export default function AdminUsersPage() {
                               <div className="flex items-center gap-1.5">
                                 <p className="text-[13px] font-medium text-slate-200">{u.name}</p>
                                 {isRowOwner && (
-                                  <span className="text-[9px] font-bold bg-purple-500/15 text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/20 uppercase tracking-wide">Owner</span>
+                                  <span className="text-[9px] font-bold bg-purple-500/15 text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/20 uppercase tracking-wide">{t('users.ownerBadge')}</span>
                                 )}
                               </div>
                               <p className="text-[11px] text-slate-500">{u.email}</p>
@@ -506,7 +505,7 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="px-5 py-3.5">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border ${roleBadgeClass(u.role)}`}>
-                            {u.role.replace('tenant_', '').replace('_', ' ')}
+                            {t('superAdmin.roles.' + u.role)}
                           </span>
                         </td>
                         <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
@@ -515,7 +514,7 @@ export default function AdminUsersPage() {
                           ) : isEditorRole(u.role) ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
                               <Shield className="h-3 w-3" />
-                              Full Access
+                              {t('users.fullAccess')}
                             </span>
                           ) : (
                             <button
@@ -596,8 +595,8 @@ export default function AdminUsersPage() {
                 </h3>
                 <p className="text-[13px] text-slate-400 mt-1">
                   {confirmPriority.newPriority === UserPriority.HIGH
-                    ? t('users.confirmHighPriority', `Set {{name}} to High Priority? They will get dedicated knowledge base access.`, { name: confirmPriority.user.name })
-                    : t('users.confirmLowPriority', `Set {{name}} to Low Priority? Their dedicated access will be removed.`, { name: confirmPriority.user.name })
+                    ? t('users.setHighPriorityConfirm', { name: confirmPriority.user.name })
+                    : t('users.setLowPriorityConfirm', { name: confirmPriority.user.name })
                   }
                 </p>
               </div>

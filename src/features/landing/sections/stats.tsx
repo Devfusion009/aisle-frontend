@@ -10,10 +10,10 @@ export function Stats() {
   const { t } = useTranslation();
 
   const stats = [
-    { end: 99,  suffix: '%',  label: t('landing.statsUptime'),       note: 'Across all regions, last 12 months' },
-    { end: 894, suffix: 'ms', label: 'P50 answer latency',           note: 'End-to-end, retrieval + generation' },
-    { end: 28,  suffix: 'k+', label: 'Tenants in production',        note: 'From 4-person teams to 30k-user orgs' },
-    { end: 0,   suffix: '',   label: t('landing.statsCrossTenant'),  note: 'Since launch. Audited quarterly.' },
+    { end: 99,  suffix: '%',  label: t('landing.statsUptime'),       note: t('landing.statsUptimeNote') },
+    { end: 894, suffix: 'ms', label: t('landing.statsLatency'),      note: t('landing.statsLatencyNote') },
+    { end: 28,  suffix: 'k+', label: t('landing.statsVectorDBs'),    note: t('landing.statsVectorDBsNote') },
+    { end: 0,   suffix: '',   label: t('landing.statsCrossTenant'),  note: t('landing.statsCrossTenantNote') },
   ];
 
   return (

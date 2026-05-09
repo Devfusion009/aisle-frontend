@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import api from '@/lib/api';
 import { UserRole, UserPriority } from '@/types';
@@ -32,6 +33,7 @@ function formatTokens(n: number) {
 }
 
 export default function UserDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data, error } = useSWR(id ? `/tenant-users/${id}/details` : null, fetcher, { refreshInterval: 10000 });
@@ -39,9 +41,9 @@ export default function UserDetailPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-[#111315] text-slate-400">
-        <p className="text-lg">User not found</p>
+        <p className="text-lg">{t('userDetail.notFound')}</p>
         <button onClick={() => router.push('/admin/users')} className="mt-4 text-[#06d4ef] hover:underline text-sm">
-          Back to Users
+          {t('userDetail.backToUsers')}
         </button>
       </div>
     );
@@ -74,7 +76,7 @@ export default function UserDetailPage() {
               className="flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-[#06d4ef] transition-colors mb-3"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back to Users
+              {t('userDetail.backToUsers')}
             </button>
           </div>
         </div>
@@ -96,15 +98,17 @@ export default function UserDetailPage() {
                     </span>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border ${roleBadgeClass(user.role)}`}>
                       <Shield className="h-3 w-3 mr-1" />
-                      {user.role.replace('tenant_', '').replace('_', ' ')}
+                      {['user', 'editor', 'tenant_admin', 'tenant_owner', 'platform_admin'].includes(user.role)
+                        ? t('superAdmin.roles.' + user.role)
+                        : user.role.replace('tenant_', '').replace('_', ' ')}
                     </span>
                     {user.priority === 'high' && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        <Star className="h-3 w-3" /> High Priority
+                        <Star className="h-3 w-3" /> {t('userDetail.highPriority')}
                       </span>
                     )}
                     <span className={`text-[11px] font-medium ${user.isActive ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {user.isActive ? 'Active' : 'Inactive'}
+                      {user.isActive ? t('userDetail.active') : t('userDetail.inactive')}
                     </span>
                   </div>
                 </div>
@@ -112,11 +116,11 @@ export default function UserDetailPage() {
               <div className="flex items-center gap-6 text-[12px] text-slate-500">
                 <span className="flex items-center gap-1">
                   <CalendarDays className="h-3.5 w-3.5" />
-                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                  {t('userDetail.joined')} {new Date(user.createdAt).toLocaleDateString()}
                 </span>
                 <span className="flex items-center gap-1">
                   <LogIn className="h-3.5 w-3.5" />
-                  Last login: {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+                  {t('userDetail.lastLogin')} {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : t('userDetail.never')}
                 </span>
               </div>
             </div>
@@ -124,10 +128,10 @@ export default function UserDetailPage() {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <KpiCard icon={<MessageSquare className="h-4 w-4 text-[#06d4ef]" />} label="Conversations" value={kpis.totalConversations} />
-            <KpiCard icon={<Coins className="h-4 w-4 text-[#06d4ef]" />} label="Tokens Used" value={formatTokens(kpis.totalTokens)} />
-            <KpiCard icon={<Send className="h-4 w-4 text-[#06d4ef]" />} label="Messages Sent" value={kpis.totalMessages} />
-            <KpiCard icon={<Clock className="h-4 w-4 text-[#06d4ef]" />} label="Avg Response" value={kpis.avgResponseTime > 0 ? `${kpis.avgResponseTime}s` : '—'} />
+            <KpiCard icon={<MessageSquare className="h-4 w-4 text-[#06d4ef]" />} label={t('userDetail.kpi.conversations')} value={kpis.totalConversations} />
+            <KpiCard icon={<Coins className="h-4 w-4 text-[#06d4ef]" />} label={t('userDetail.kpi.tokensUsed')} value={formatTokens(kpis.totalTokens)} />
+            <KpiCard icon={<Send className="h-4 w-4 text-[#06d4ef]" />} label={t('userDetail.kpi.messagesSent')} value={kpis.totalMessages} />
+            <KpiCard icon={<Clock className="h-4 w-4 text-[#06d4ef]" />} label={t('userDetail.kpi.avgResponse')} value={kpis.avgResponseTime > 0 ? `${kpis.avgResponseTime}s` : '—'} />
           </div>
 
           {/* Feedback & Access Row */}
@@ -138,7 +142,7 @@ export default function UserDetailPage() {
               </div>
               <div>
                 <p className="text-xl font-bold text-slate-100">{kpis.upVotes}</p>
-                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Positive Feedback</p>
+                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">{t('userDetail.positiveFeedback')}</p>
               </div>
             </div>
             <div className="rounded-xl border border-slate-800 bg-[#1a1d21] p-4 flex items-center gap-4">
@@ -147,7 +151,7 @@ export default function UserDetailPage() {
               </div>
               <div>
                 <p className="text-xl font-bold text-slate-100">{kpis.downVotes}</p>
-                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Negative Feedback</p>
+                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">{t('userDetail.negativeFeedback')}</p>
               </div>
             </div>
             {user.priority === 'high' && (
@@ -157,7 +161,7 @@ export default function UserDetailPage() {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-slate-100">{kpis.datasetAccessCount}</p>
-                  <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">KB Access</p>
+                  <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">{t('userDetail.kbAccess')}</p>
                 </div>
               </div>
             )}
@@ -167,7 +171,7 @@ export default function UserDetailPage() {
           <div className="rounded-xl border border-slate-800 bg-[#1a1d21] p-5">
             <div className="flex items-center gap-2 mb-4">
               <Activity className="h-4 w-4 text-[#06d4ef]" />
-              <h2 className="text-sm font-semibold text-slate-200">Activity (Last 14 Days)</h2>
+              <h2 className="text-sm font-semibold text-slate-200">{t('userDetail.activityTitle')}</h2>
             </div>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
@@ -185,8 +189,8 @@ export default function UserDetailPage() {
                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '12px' }}
                     itemStyle={{ color: '#e2e8f0' }}
                     formatter={(val: any, name: any) => [
-                      name === 'tokens' ? Number(val).toLocaleString() + ' tokens' : val,
-                      name === 'tokens' ? 'Tokens' : 'Conversations',
+                      name === 'tokens' ? Number(val).toLocaleString() + ' ' + t('userDetail.tokensSuffix') : val,
+                      name === 'tokens' ? t('userDetail.tooltipTokens') : t('userDetail.tooltipConversations'),
                     ]}
                   />
                   <Area type="monotone" dataKey="tokens" stroke="#06d4ef" fillOpacity={1} fill="url(#colorTokensUser)" />
@@ -201,7 +205,7 @@ export default function UserDetailPage() {
             <div className="rounded-xl border border-slate-800 bg-[#1a1d21] overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-800 flex items-center gap-2">
                 <Bot className="h-4 w-4 text-[#06d4ef]" />
-                <h2 className="text-[13px] font-semibold text-slate-200">Most Used Assistants</h2>
+                <h2 className="text-[13px] font-semibold text-slate-200">{t('userDetail.mostUsedAssistants')}</h2>
               </div>
               <div className="divide-y divide-slate-800/60">
                 {topAssistants.map((a: any) => (
@@ -216,8 +220,8 @@ export default function UserDetailPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-5 text-[12px]">
-                      <span className="text-slate-400">{a.conversations} convs</span>
-                      <span className="text-slate-500">{formatTokens(a.tokens)} tokens</span>
+                      <span className="text-slate-400">{a.conversations} {t('userDetail.convsSuffix')}</span>
+                      <span className="text-slate-500">{formatTokens(a.tokens)} {t('userDetail.tokensShort')}</span>
                     </div>
                   </div>
                 ))}
@@ -230,24 +234,24 @@ export default function UserDetailPage() {
             <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-200 flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-[#06d4ef]" />
-                All Conversations
+                {t('userDetail.allConversations')}
               </h2>
-              <span className="text-[12px] text-slate-500">{conversations.length} total</span>
+              <span className="text-[12px] text-slate-500">{conversations.length} {t('userDetail.totalSuffix')}</span>
             </div>
 
             {conversations.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 text-[13px]">No conversations yet</div>
+              <div className="text-center py-12 text-slate-500 text-[13px]">{t('userDetail.noConversations')}</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-800 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      <th className="px-5 py-3">Conversation</th>
-                      <th className="px-5 py-3">Assistant</th>
-                      <th className="px-5 py-3">Messages</th>
-                      <th className="px-5 py-3">Tokens</th>
-                      <th className="px-5 py-3">Status</th>
-                      <th className="px-5 py-3">Date</th>
+                      <th className="px-5 py-3">{t('userDetail.col.conversation')}</th>
+                      <th className="px-5 py-3">{t('userDetail.col.assistant')}</th>
+                      <th className="px-5 py-3">{t('userDetail.col.messages')}</th>
+                      <th className="px-5 py-3">{t('userDetail.col.tokens')}</th>
+                      <th className="px-5 py-3">{t('userDetail.col.status')}</th>
+                      <th className="px-5 py-3">{t('userDetail.col.date')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60">
@@ -255,18 +259,18 @@ export default function UserDetailPage() {
                       <tr key={conv.id} className="hover:bg-slate-800/30 transition-colors">
                         <td className="px-5 py-3 text-[13px] text-slate-200 max-w-[200px] truncate">
                           {conv.title}
-                          {conv.isPinned && <span className="ml-1.5 text-amber-400 text-[10px]">pinned</span>}
+                          {conv.isPinned && <span className="ml-1.5 text-amber-400 text-[10px]">{t('userDetail.pinned')}</span>}
                         </td>
                         <td className="px-5 py-3 text-[12px] text-slate-400">{conv.assistantName}</td>
                         <td className="px-5 py-3 text-[12px] text-slate-400">{conv.messages}</td>
                         <td className="px-5 py-3 text-[12px] text-slate-400">{formatTokens(conv.totalTokensUsed)}</td>
                         <td className="px-5 py-3">
                           {conv.isArchived ? (
-                            <span className="text-[11px] text-slate-600">Archived</span>
+                            <span className="text-[11px] text-slate-600">{t('userDetail.archived')}</span>
                           ) : conv.isActive ? (
-                            <span className="text-[11px] text-emerald-400">Active</span>
+                            <span className="text-[11px] text-emerald-400">{t('userDetail.statusActive')}</span>
                           ) : (
-                            <span className="text-[11px] text-slate-500">Closed</span>
+                            <span className="text-[11px] text-slate-500">{t('userDetail.statusClosed')}</span>
                           )}
                         </td>
                         <td className="px-5 py-3 text-[12px] text-slate-500">

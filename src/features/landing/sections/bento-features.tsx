@@ -18,15 +18,15 @@ export function BentoFeatures() {
       <FadeIn direction="up" className="text-center max-w-2xl mx-auto mb-14">
         <div className="inline-flex items-center gap-2 mb-3 text-[11px] font-mono uppercase tracking-[0.1em] text-violet-300">
           <span className="h-px w-7 bg-white/[0.1]" />
-          The platform
+          {t('landing.bentoEyebrow')}
           <span className="h-px w-7 bg-white/[0.1]" />
         </div>
         <h2 className="text-3xl md:text-5xl font-medium tracking-[-0.025em] leading-[1.05]">
-          Built for the boring parts of{' '}
-          <em className="italic font-normal text-zinc-500">real enterprise AI.</em>
+          {t('landing.bentoTitlePart1')}{' '}
+          <em className="italic font-normal text-zinc-500">{t('landing.bentoTitleEm')}</em>
         </h2>
         <p className="mt-4 text-zinc-400 text-[15px] md:text-[17px] leading-[1.55]">
-          Not a thin wrapper. A whole platform — ingestion, isolation, permissions, audit, and a chat that actually cites its sources.
+          {t('landing.bentoSubtitle')}
         </p>
       </FadeIn>
 
@@ -54,7 +54,7 @@ export function BentoFeatures() {
         </FadeIn>
 
         <FadeIn direction="up" delay={200} className="md:col-span-2">
-          <Card eyebrow="Audit log" title="Every query, traceable.">
+          <Card eyebrow={t('landing.feat4Tag')} title={t('landing.feat4Title')}>
             <AnimatedAuditLog />
           </Card>
         </FadeIn>
