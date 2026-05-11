@@ -39,7 +39,7 @@ jobs:
           key: ${{ secrets.NV_FE_EC2_SSH_KEY }}
           script: pm2 stop versa-frontend || true
 
-      - name: Copy Files to Lightsail
+      - name: Copy Files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.NV_FE_EC2_HOST }}
@@ -48,12 +48,13 @@ jobs:
           source: "./frontend-build.zip"
           target: "/home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend-temp"
 
-      - name: Deploy on Lightsail
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.NV_FE_EC2_HOST }}
           username: ${{ secrets.NV_FE_EC2_USER }}
           key: ${{ secrets.NV_FE_EC2_SSH_KEY }}
+          command_timeout: "30m"
           script: |
             mkdir -p /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend
             cd /home/${{ secrets.NV_FE_EC2_USER }}/versa-frontend
