@@ -27,13 +27,14 @@ function ResponseTooltip({ active, payload, label }: any) {
 }
 
 function TrendTooltip({ active, payload, label }: any) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-[#1e293b] border border-slate-700 rounded-lg px-3 py-2 text-[12px] shadow-xl">
       <p className="text-slate-400 mb-1">{label}</p>
-      <p className="text-[#06d4ef] font-semibold">{payload[0].value} conversations</p>
+      <p className="text-[#06d4ef] font-semibold">{payload[0].value} {t('analytics.conversations').toLowerCase()}</p>
       {payload[1] && (
-        <p className="text-amber-400 font-semibold">{payload[1].value.toLocaleString()} tokens</p>
+        <p className="text-amber-400 font-semibold">{payload[1].value.toLocaleString()} {t('common.tokens')}</p>
       )}
     </div>
   );
@@ -52,21 +53,21 @@ function downloadCSV(data: any, period: string, t: (key: string) => string) {
   rows.push([t('analytics.tokensThisPeriod'), data.tokensLabel]);
   rows.push([]);
 
-  rows.push(['User Feedback']);
-  rows.push(['Type', 'Count', '%']);
-  rows.push(['Positive', `${data.upVotes || 0}`, `${data.satisfaction?.[0]?.value || 0}%`]);
-  rows.push(['Negative', `${data.downVotes || 0}`, `${data.satisfaction?.[1]?.value || 0}%`]);
+  rows.push([t('analytics.csv.userFeedback')]);
+  rows.push([t('analytics.csv.type'), t('analytics.csv.count'), '%']);
+  rows.push([t('analytics.csv.positive'), `${data.upVotes || 0}`, `${data.satisfaction?.[0]?.value || 0}%`]);
+  rows.push([t('analytics.csv.negative'), `${data.downVotes || 0}`, `${data.satisfaction?.[1]?.value || 0}%`]);
   rows.push([]);
 
   rows.push([t('analytics.responseTimeByHour')]);
-  rows.push(['Hour', 'Time (s)']);
+  rows.push([t('analytics.csv.hour'), t('analytics.csv.timeSeconds')]);
   (data.responseByHour || []).forEach((r: any) => {
     rows.push([r.hour, `${r.time}`]);
   });
   rows.push([]);
 
-  rows.push(['Daily Trend']);
-  rows.push(['Date', t('analytics.conversations'), 'Tokens']);
+  rows.push([t('analytics.csv.dailyTrend')]);
+  rows.push([t('analytics.csv.date'), t('analytics.conversations'), t('analytics.csv.tokens')]);
   (data.dailyTrend || []).forEach((d: any) => {
     rows.push([d.label, `${d.conversations}`, `${d.tokens}`]);
   });
@@ -268,7 +269,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center justify-center">
                     <div className="text-center">
                       <p className="text-5xl font-bold text-emerald-400">{d.avgSatisfaction}%</p>
-                      <p className="text-[12px] text-slate-500 mt-1">{d.totalVotes} total votes</p>
+                      <p className="text-[12px] text-slate-500 mt-1">{d.totalVotes} {t('analytics.totalVotesSuffix')}</p>
                     </div>
                   </div>
 

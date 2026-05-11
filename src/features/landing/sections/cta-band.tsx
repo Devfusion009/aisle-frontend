@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 import { ConfettiDots } from '../components/confetti-dots';
 import { FadeIn } from '../components/fade-in';
@@ -10,12 +11,6 @@ interface SideCard {
   heading: string;
   copy: string;
 }
-
-const SIDE_CARDS: SideCard[] = [
-  { icon: 'check-circle', heading: 'No credit card', copy: 'Free up to 1k queries / month. Upgrade only when you need to.' },
-  { icon: 'check',        heading: '5-minute setup', copy: 'Provision a tenant, drop a folder of PDFs, you’re live.' },
-  { icon: 'refresh',      heading: 'Migrate anytime', copy: 'Self-host in your VPC, or export raw embeddings on demand.' },
-];
 
 function SideIcon({ name }: { name: SideCard['icon'] }) {
   const baseSvg = 'w-4 h-4';
@@ -44,6 +39,14 @@ function SideIcon({ name }: { name: SideCard['icon'] }) {
 
 /** Final CTA band: primary headline + 3 trust cards on the side. */
 export function CtaBand() {
+  const { t } = useTranslation();
+
+  const SIDE_CARDS: SideCard[] = [
+    { icon: 'check-circle', heading: t('landing.ctaSideCard1Title'), copy: t('landing.ctaSideCard1Body') },
+    { icon: 'check',        heading: t('landing.ctaSideCard2Title'), copy: t('landing.ctaSideCard2Body') },
+    { icon: 'refresh',      heading: t('landing.ctaSideCard3Title'), copy: t('landing.ctaSideCard3Body') },
+  ];
+
   return (
     <section className="relative max-w-7xl mx-auto px-6 lg:px-10 py-24 md:py-32 z-10">
       <FadeIn direction="up">
@@ -54,17 +57,17 @@ export function CtaBand() {
           <ConfettiDots />
           <div className="relative z-10">
             <h2 className="text-3xl md:text-[44px] font-medium tracking-[-0.025em] leading-[1.05]">
-              Stop pasting your docs into ChatGPT.
+              {t('landing.ctaH2')}
             </h2>
             <p className="mt-4 text-zinc-400 text-[15px] leading-[1.55] max-w-[44ch]">
-              Verse AI takes 5 minutes to set up, ships with a free tier, and treats your data like the liability it is. The first answer is on us.
+              {t('landing.ctaParagraph')}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/register"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white text-[#07070a] font-medium text-[14px] hover:bg-zinc-100 hover:-translate-y-px transition-all"
               >
-                Start free
+                {t('landing.ctaStartFree')}
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
                 </svg>

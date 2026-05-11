@@ -21,7 +21,7 @@ function formatBytes(bytes: number, decimals = 0) {
 }
 
 function formatRelative(d: string | null | undefined, t: TFunction): string {
-    if (!d) return 'Never';
+    if (!d) return t('superAdmin.neverRelative');
     const now = Date.now();
     const then = new Date(d).getTime();
     const diff = now - then;
@@ -75,32 +75,31 @@ export default function SuperAdminDatabasesPage() {
             const isSystem = a.tenantId ? tenants.find((t: any) => t.id === a.tenantId)?.slug === 'system' : true;
             return !isSystem;
         }).map((assistant: any) => {
-            const t = customerTenants.find((tx: any) => tx.id === assistant.tenantId);
+            const tnt = customerTenants.find((tx: any) => tx.id === assistant.tenantId);
             const actualDocs = documents.filter((d: any) => d.assistantId === assistant.id || d.tenantId === assistant.tenantId);
             const docCount = actualDocs.length;
             const size = actualDocs.reduce((acc: number, cur: any) => acc + (Number(cur.fileSize) || 0), 0);
-            
+
             let mostRecent = assistant.updatedAt;
             if (actualDocs.length > 0) {
                 const sorted = [...actualDocs].sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
                 mostRecent = sorted[0].updatedAt;
             }
 
-            // Pseudo-random dataset name and status for visual completeness
-            const datasetName = assistant.name ? (assistant.name.includes(' ') ? assistant.name : assistant.name + ' Core') : 'Knowledge Base';
+            const datasetName = assistant.name || 'Knowledge Base';
 
             return {
                 id: assistant.id,
                 name: datasetName,
                 tenantId: assistant.tenantId,
-                tenantName: t ? t.name : 'Unknown',
+                tenantName: tnt ? tnt.name : t('superAdmin.unknownTenant'),
                 docCount: docCount,
                 sizeBytes: size || Math.floor(Math.random() * 50 * 1024 * 1024), // Random size fallback if 0 docs for UI parity
                 updatedAt: mostRecent,
                 status: 'Accessible'
             };
         });
-    }, [assistants, documents, customerTenants, tenants]);
+    }, [assistants, documents, customerTenants, tenants, t]);
 
     const filteredDatasets = datasets.filter((ds: any) => {
         if (activeTab !== 'all' && ds.tenantId !== activeTab) return false;
@@ -136,7 +135,7 @@ export default function SuperAdminDatabasesPage() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Search by dataset or tenant name…"
+                                placeholder={t('superAdmin.datasetsSearchPlaceholder')}
                                 className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#111827] border border-[#1e293b] text-xs text-slate-200 placeholder:text-slate-600 outline-none focus:border-cyan-500/50 transition-colors"
                             />
                             {searchQuery && (
@@ -175,21 +174,21 @@ export default function SuperAdminDatabasesPage() {
                                 <Folder className="h-5 w-5 text-cyan-400" />
                             </div>
                             <span className="text-[26px] font-semibold text-slate-100">{statsDatasets}</span>
-                            <span className="text-[13px] text-slate-400">Datasets</span>
+                            <span className="text-[13px] text-slate-400">{t('superAdmin.datasetsHeader')}</span>
                         </div>
                         <div className="rounded-2xl border border-[#1e293b] bg-[#111827] p-6 flex flex-col justify-center">
                             <div className="flex items-center justify-between mb-3">
                                 <FileText className="h-5 w-5 text-cyan-400" />
                             </div>
                             <span className="text-[26px] font-semibold text-slate-100">{statsDocs}</span>
-                            <span className="text-[13px] text-slate-400">{t('superAdmin.documents')}</span>
+                            <span className="text-[13px] text-slate-400">{t('superAdmin.documentsHeader')}</span>
                         </div>
                         <div className="rounded-2xl border border-[#1e293b] bg-[#111827] p-6 flex flex-col justify-center">
                             <div className="flex items-center justify-between mb-3">
                                 <Building2 className="h-5 w-5 text-cyan-400" />
                             </div>
                             <span className="text-[26px] font-semibold text-slate-100">{statsTenants}</span>
-                            <span className="text-[13px] text-slate-400">Tenants</span>
+                            <span className="text-[13px] text-slate-400">{t('superAdmin.tenantsHeader')}</span>
                         </div>
                     </div>
 
@@ -210,7 +209,7 @@ export default function SuperAdminDatabasesPage() {
                                     </span>
                                 </div>
                                 <p className="text-[12px] text-slate-400 mt-3 line-clamp-2">
-                                    Technical documentation, manuals, regulations, FAQs, and resources mapping to the {ds.name} context.
+                                    {t('superAdmin.datasetDescription', { name: ds.name })}
                                 </p>
                                 <div className="mt-auto pt-4 flex items-center gap-3 text-[11px] text-slate-500">
                                     <span className="flex items-center gap-1.5">

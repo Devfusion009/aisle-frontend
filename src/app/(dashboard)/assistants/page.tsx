@@ -120,6 +120,7 @@ function ModelPicker({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIdx, setActiveIdx] = useState(0);
@@ -191,7 +192,7 @@ function ModelPicker({
       >
         <span className="flex items-center gap-2 min-w-0">
           <Cpu className="h-3.5 w-3.5 text-[#06d4ef] shrink-0" />
-          <span className="truncate font-medium">{selected?.label ?? 'Select model'}</span>
+          <span className="truncate font-medium">{selected?.label ?? t('assistants.selectModel')}</span>
           {selected?.params && (
             <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded">
               {selected.params}
@@ -217,7 +218,7 @@ function ModelPicker({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleSearchKey}
-              placeholder="Search models by name, size, or tag…"
+              placeholder={t('assistants.searchModelsPlaceholder')}
               className="flex-1 bg-transparent text-[13px] text-slate-200 placeholder:text-slate-600 outline-none"
             />
             {query && (
@@ -234,7 +235,7 @@ function ModelPicker({
           <div ref={listRef} className="max-h-[320px] overflow-y-auto py-1">
             {filtered.length === 0 ? (
               <p className="px-3 py-8 text-center text-[12px] text-slate-600">
-                No models match &ldquo;{query}&rdquo;
+                {t('assistants.noModelsMatch', { query })}
               </p>
             ) : (
               filtered.map((m, i) => {
@@ -268,9 +269,9 @@ function ModelPicker({
                         ) : (
                           <span
                             className="text-[10px] font-medium text-slate-600 italic"
-                            title="Parameter count not publicly disclosed"
+                            title={t('assistants.paramsNotDisclosed')}
                           >
-                            params n/a
+                            {t('assistants.paramsNa')}
                           </span>
                         )}
                         {m.context && (
@@ -292,7 +293,7 @@ function ModelPicker({
           </div>
 
           <div className="px-3 py-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-600">
-            <span>{filtered.length} / {models.length} models</span>
+            <span>{filtered.length} / {t('assistants.modelsCount', { count: models.length })}</span>
             <span className="flex items-center gap-2">
               <kbd className="font-mono bg-slate-800 border border-slate-700 rounded px-1">↑↓</kbd>
               <kbd className="font-mono bg-slate-800 border border-slate-700 rounded px-1">↵</kbd>
@@ -672,7 +673,7 @@ function CreateForm({
           <div>
             <p className="text-[14px] font-semibold text-slate-100">{t('assistants.createNew')}</p>
             <p className="text-[11px] text-slate-500 mt-0.5">
-              Configure a new AI assistant — give it a persona, pick a model, and attach knowledge bases.
+              {t('assistants.createNewDesc')}
             </p>
           </div>
           <div className="shrink-0 h-9 w-9 rounded-xl bg-gradient-to-br from-[#06d4ef]/25 to-[#06d4ef]/5 border border-[#06d4ef]/30 flex items-center justify-center">
@@ -735,7 +736,7 @@ function CreateForm({
                       {active && <Check className="h-3.5 w-3.5 text-[#06d4ef]" />}
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5 truncate">{p.tagline}</p>
-                    <p className="text-[10px] text-slate-600 mt-0.5">{count} models</p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">{t('assistants.modelsCount', { count })}</p>
                   </div>
                 </button>
               );
@@ -778,7 +779,7 @@ function CreateForm({
             className="w-full bg-[#0f1114] border border-slate-700 rounded-xl px-3.5 py-2.5 text-[13px] text-slate-200 placeholder:text-slate-600 outline-none focus:border-[#06d4ef]/60 transition-colors resize-none"
           />
           <p className="text-[10px] text-slate-600 mt-1 pl-1">
-            Defaults to a generic helpful-assistant prompt if left empty.
+            {t('assistants.promptDefaultsHint')}
           </p>
         </div>
 
@@ -929,7 +930,7 @@ export default function AssistantsPage() {
               <h1 className="text-xl font-bold text-slate-100">{t('assistants.title')}</h1>
               <p className="text-[12px] text-slate-500 mt-0.5">
                 {assistants
-                  ? `${activeCount} ${t('common.active').toLowerCase()} · ${assistants.length} total`
+                  ? `${activeCount} ${t('common.active').toLowerCase()} · ${assistants.length} ${t('assistants.totalSuffix')}`
                   : t('assistants.manage')}
               </p>
             </div>

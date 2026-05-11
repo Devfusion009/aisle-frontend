@@ -200,7 +200,7 @@ export default function SuperAdminAssistantsPage() {
                  </thead>
                  <tbody className="divide-y divide-[#1e293b]">
                     {filteredAssistants.map((a: any) => {
-                      const modelProvider = a.settings?.model || 'GPT-4o';
+                      const modelProvider = a.settings?.model || t('superAdmin.modelFallback');
                       const hasRag = !!a.systemPrompt;
 
                       return (
@@ -217,7 +217,7 @@ export default function SuperAdminAssistantsPage() {
                            </div>
                         </td>
                         <td className="px-5 py-4 text-[12px] text-slate-400">
-                          {tenants.find((t: any) => t.id === a.tenantId)?.name || 'Unknown'}
+                          {tenants.find((tnt: any) => tnt.id === a.tenantId)?.name || t('superAdmin.unknownTenant')}
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-1.5 text-[12px] text-slate-400">
@@ -229,7 +229,7 @@ export default function SuperAdminAssistantsPage() {
                            <div className="flex flex-wrap gap-1 border-t-0 p-0">
                               <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-[#1e293b]/50 border border-[#2d3748] px-1.5 py-0.5 rounded">
                                 <Database className="h-3 w-3" />
-                                {a.name} Core
+                                {a.name}
                               </div>
                            </div>
                         </td>

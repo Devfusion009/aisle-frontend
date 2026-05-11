@@ -15,14 +15,6 @@ const fetcher = (url: string) => api.get(url).then((r: any) => r.data);
 
 type TimeRange = 'day' | 'week' | 'month' | 'year' | '5year';
 
-const TIME_RANGES: { key: TimeRange; label: string }[] = [
-  { key: 'day', label: 'Day' },
-  { key: 'week', label: 'Week' },
-  { key: 'month', label: 'Month' },
-  { key: 'year', label: 'Year' },
-  { key: '5year', label: '5 Year' },
-];
-
 const RANGE_DAYS: Record<TimeRange, number> = {
   day: 7,
   week: 56,
@@ -110,6 +102,14 @@ export default function SuperAdminDashboard() {
   const { t } = useTranslation();
   const { user, logoVersion } = useAuthStore();
   const [timeRange, setTimeRange] = useState<TimeRange>('month');
+
+  const TIME_RANGES: { key: TimeRange; label: string }[] = [
+    { key: 'day', label: t('superAdmin.timeRanges.day') },
+    { key: 'week', label: t('superAdmin.timeRanges.week') },
+    { key: 'month', label: t('superAdmin.timeRanges.month') },
+    { key: 'year', label: t('superAdmin.timeRanges.year') },
+    { key: '5year', label: t('superAdmin.timeRanges.fiveYear') },
+  ];
 
   const { data: tenants, isLoading: tenantsLoading } = useSWR(
     user?.role === UserRole.PLATFORM_ADMIN ? '/super-admin/tenants' : null,
@@ -347,9 +347,9 @@ export default function SuperAdminDashboard() {
                     const maxUsers = tenant.settings?.maxUsers || (totalUsers > 10 ? 200 : (totalUsers > 2 ? 50 : 5));
                     const maxAssistants = tenant.settings?.maxAssistants || (assistantsCount > 5 ? 100 : (assistantsCount > 1 ? 20 : 3));
                     let planColor = 'text-cyan-400';
-                    let plan = 'Starter';
-                    if (totalUsers > 40) { plan = 'Enterprise'; planColor = 'text-emerald-400'; }
-                    else if (totalUsers > 5) { plan = 'Business'; planColor = 'text-blue-400'; }
+                    let plan = t('billing.starter');
+                    if (totalUsers > 40) { plan = t('billing.enterprise'); planColor = 'text-emerald-400'; }
+                    else if (totalUsers > 5) { plan = t('billing.business'); planColor = 'text-blue-400'; }
 
                     const isTrial = tenant.name?.toLowerCase().includes('beta');
 

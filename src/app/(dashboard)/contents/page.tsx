@@ -106,7 +106,7 @@ export default function ContentsPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      showAlert('Failed to download', { variant: 'danger' });
+      showAlert(t('contents.downloadFailed'), { variant: 'danger' });
     }
   };
 
@@ -175,7 +175,7 @@ export default function ContentsPage() {
                     <div className="flex-1 min-w-0">
                       <span className="text-[14px] font-semibold text-slate-800 dark:text-slate-100 truncate block">{ds.name}</span>
                       <p className="text-[12px] text-slate-500 mt-0.5">
-                        {ds.docCount} {ds.docCount === 1 ? 'doc' : 'docs'}
+                        {ds.docCount} {ds.docCount === 1 ? t('contents.doc') : t('contents.docs')}
                         {ds.totalSize > 0 && <span className="text-slate-600 mx-1.5">·</span>}
                         {ds.totalSize > 0 && <span>{formatFileSize(ds.totalSize)}</span>}
                       </p>
@@ -206,7 +206,7 @@ export default function ContentsPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                   <input
                     type="text"
-                    placeholder={t('common.search') || 'Search documents...'}
+                    placeholder={t('contents.searchDocsPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-[#111315] border border-slate-200 dark:border-slate-700/60 rounded-lg pl-9 pr-3 py-2 text-[12px] text-slate-700 dark:text-slate-300 placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none focus:border-[#06d4ef]/50 dark:focus:border-slate-600 transition-colors"
@@ -236,7 +236,7 @@ export default function ContentsPage() {
                     <FileText className="h-7 w-7 text-slate-400 dark:text-slate-600" />
                   </div>
                   <p className="text-[13px] text-slate-500">
-                    {searchQuery ? t('common.noResults') || 'No matching documents' : t('knowledge.noDocuments')}
+                    {searchQuery ? t('contents.noMatchingDocs') : t('knowledge.noDocuments')}
                   </p>
                 </div>
               ) : (

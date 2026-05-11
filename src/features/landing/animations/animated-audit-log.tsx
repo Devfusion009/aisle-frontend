@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ActionType = 'query' | 'upload' | 'invite' | 'revoke' | 'export' | 'login';
 
@@ -49,6 +50,7 @@ let _id = 0;
 function makeId() { return ++_id; }
 
 export function AnimatedAuditLog() {
+  const { t } = useTranslation();
   const ref     = useRef<HTMLDivElement>(null);
   const [entries, setEntries] = useState<LogEntry[]>(() =>
     SEED_ENTRIES.map(e => ({ ...e, id: makeId() }))
@@ -106,10 +108,10 @@ export function AnimatedAuditLog() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
-          <span className="font-mono text-[9px] text-emerald-400 tracking-[0.12em] uppercase">Live</span>
+          <span className="font-mono text-[9px] text-emerald-400 tracking-[0.12em] uppercase">{t('landing.audit.live')}</span>
         </div>
         <span className="font-mono text-[9px] text-zinc-600 tabular-nums">
-          {totalCount} events
+          {t('landing.audit.events', { count: totalCount })}
         </span>
       </div>
 
@@ -146,7 +148,7 @@ export function AnimatedAuditLog() {
                   className="absolute -top-1 -right-1 text-[8px] font-bold bg-emerald-500 text-black px-1 rounded"
                   style={{ animation: 'al-newbadge 0.9s ease forwards' }}
                 >
-                  NEW
+                  {t('landing.audit.newBadge')}
                 </span>
               )}
 
@@ -163,7 +165,7 @@ export function AnimatedAuditLog() {
               <span className="text-zinc-800 shrink-0">·</span>
 
               {/* action */}
-              <span className={`${style.cls} font-semibold shrink-0`}>{style.label}</span>
+              <span className={`${style.cls} font-semibold shrink-0`}>{t('landing.audit.actions.' + style.label)}</span>
 
               {/* dot + detail */}
               <span className="text-zinc-800 shrink-0">·</span>

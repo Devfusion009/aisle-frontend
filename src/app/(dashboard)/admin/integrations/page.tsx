@@ -317,9 +317,9 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
   }, []);
 
   const handleSave = async () => {
-    if (!webhookUrl.trim()) { setError('Please enter a Slack webhook URL'); return; }
+    if (!webhookUrl.trim()) { setError(t('integrations.slackWebhookEmpty')); return; }
     if (!webhookUrl.startsWith('https://hooks.slack.com/')) {
-      setError('URL must start with https://hooks.slack.com/');
+      setError(t('integrations.slackWebhookInvalid'));
       return;
     }
     setSaving(true); setError('');
@@ -328,7 +328,7 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
       onSaved();
       onClose();
     } catch (e: any) {
-      setError(e?.response?.data?.message || 'Failed to save');
+      setError(e?.response?.data?.message || t('integrations.slackSaveFailed'));
     } finally {
       setSaving(false);
     }
@@ -341,7 +341,7 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
       onSaved();
       onClose();
     } catch (e: any) {
-      setError(e?.response?.data?.message || 'Failed to disconnect');
+      setError(e?.response?.data?.message || t('integrations.slackDisconnectFailed'));
     } finally {
       setSaving(false);
     }
@@ -352,11 +352,11 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
     try {
       const r: any = await api.post('/tenant/integrations/slack/test');
       setTestResult(r.data?.ok
-        ? { ok: true, msg: 'Test message sent to Slack!' }
-        : { ok: false, msg: r.data?.error || 'Slack returned an error' }
+        ? { ok: true, msg: t('integrations.slackTestSent') }
+        : { ok: false, msg: r.data?.error || t('integrations.slackTestError') }
       );
     } catch (e: any) {
-      setTestResult({ ok: false, msg: e?.response?.data?.message || 'Request failed' });
+      setTestResult({ ok: false, msg: e?.response?.data?.message || t('integrations.slackRequestFailed') });
     } finally {
       setTesting(false);
     }
@@ -394,12 +394,12 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
 
             {/* Step instructions */}
             <div className="bg-[#111315] border border-slate-700/40 rounded-lg p-3.5 space-y-1.5">
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Setup steps</p>
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">{t('integrations.setupSteps')}</p>
               {[
-                'Go to api.slack.com/apps → Create New App',
-                'Enable "Incoming Webhooks" in your app settings',
-                'Click "Add New Webhook to Workspace" and choose a channel',
-                'Copy the webhook URL and paste it below',
+                t('integrations.slackStep1'),
+                t('integrations.slackStep2'),
+                t('integrations.slackStep3'),
+                t('integrations.slackStep4'),
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <span className="text-[11px] font-bold text-[#06d4ef] shrink-0 mt-0.5">{i + 1}.</span>
@@ -409,11 +409,11 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
             </div>
 
             <div>
-              <label className="block text-[12px] font-medium text-slate-400 mb-1.5">Slack Incoming Webhook URL</label>
+              <label className="block text-[12px] font-medium text-slate-400 mb-1.5">{t('integrations.slackUrlLabel')}</label>
               <input
                 value={webhookUrl}
                 onChange={e => { setWebhookUrl(e.target.value); setTestResult(null); }}
-                placeholder="https://hooks.slack.com/services/T.../B.../..."
+                placeholder={t('integrations.slackUrlPlaceholder')}
                 className="w-full bg-[#111315] border border-slate-700/60 rounded-lg px-3 py-2 text-[13px] text-slate-200 placeholder:text-slate-500 outline-none focus:border-[#06d4ef]/50 focus:ring-1 focus:ring-[#06d4ef]/20 transition-all"
               />
             </div>
@@ -445,7 +445,7 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
               disabled={saving}
               className="h-9 px-3 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-[12px] font-medium transition-all disabled:opacity-50"
             >
-              Disconnect
+              {t('integrations.disconnect')}
             </button>
           )}
           {isConnected && (
@@ -455,7 +455,7 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
               className="h-9 px-3 rounded-lg border border-slate-700/60 text-slate-400 hover:text-slate-200 text-[12px] font-medium transition-all hover:bg-slate-700/30 disabled:opacity-50 flex items-center gap-1.5"
             >
               {testing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Send test
+              {t('integrations.sendTest')}
             </button>
           )}
           <button
@@ -470,7 +470,7 @@ function SlackModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
             className="flex-1 h-9 rounded-lg bg-[#E01E5A] text-white font-medium text-[13px] hover:bg-[#E01E5A]/90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
           >
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            {isConnected ? 'Update' : t('common.save')}
+            {isConnected ? t('integrations.update') : t('common.save')}
           </button>
         </div>
       </div>
@@ -523,13 +523,12 @@ function ZapierModal({ onClose }: { onClose: () => void }) {
 
           {/* Step guide */}
           <div className="bg-[#111315] border border-slate-700/40 rounded-lg p-3.5 space-y-1.5">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">How it works</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">{t('integrations.zapierHowItWorks')}</p>
             {[
-              'Create an API Key below (or use an existing one)',
-              'In Zapier, create a new Zap → choose "Webhooks by Zapier"',
-              'Set Method = POST, URL = the endpoint below',
-              'Add header X-API-Key with your key value',
-              'Set Body Type = JSON with fields: message, sessionId (optional)',
+              t('integrations.zapierStep1'),
+              t('integrations.zapierStep2'),
+              t('integrations.zapierStep3'),
+              t('integrations.zapierStep4'),
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-2">
                 <span className="text-[11px] font-bold text-[#FF4A00] shrink-0 mt-0.5">{i + 1}.</span>
@@ -540,7 +539,7 @@ function ZapierModal({ onClose }: { onClose: () => void }) {
 
           {/* Endpoint */}
           <div>
-            <p className="text-[12px] font-medium text-slate-400 mb-1.5">API Endpoint</p>
+            <p className="text-[12px] font-medium text-slate-400 mb-1.5">{t('integrations.apiEndpoint')}</p>
             <div className="flex items-center gap-2 bg-[#111315] border border-slate-700/40 rounded-lg px-3 py-2">
               <code className="flex-1 text-[12px] text-[#06d4ef] font-mono truncate">{endpoint}</code>
               <button
@@ -548,14 +547,14 @@ function ZapierModal({ onClose }: { onClose: () => void }) {
                 className="shrink-0 text-[11px] px-2 py-0.5 rounded bg-[#06d4ef]/10 text-[#06d4ef] border border-[#06d4ef]/20 hover:bg-[#06d4ef]/20 transition-colors flex items-center gap-1"
               >
                 {copied === 'endpoint' ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                {copied === 'endpoint' ? 'Copied!' : 'Copy'}
+                {copied === 'endpoint' ? t('integrations.copied') : t('integrations.copy')}
               </button>
             </div>
           </div>
 
           {/* Required header */}
           <div>
-            <p className="text-[12px] font-medium text-slate-400 mb-1.5">Required Header</p>
+            <p className="text-[12px] font-medium text-slate-400 mb-1.5">{t('integrations.requiredHeader')}</p>
             <div className="flex items-center justify-between bg-[#111315] border border-slate-700/40 rounded-lg px-3 py-2">
               <code className="text-[12px] text-slate-300 font-mono">X-API-Key: vrs_live_...</code>
             </div>
@@ -563,11 +562,11 @@ function ZapierModal({ onClose }: { onClose: () => void }) {
 
           {/* API Keys */}
           <div>
-            <p className="text-[12px] font-medium text-slate-400 mb-2">Your API Keys</p>
+            <p className="text-[12px] font-medium text-slate-400 mb-2">{t('integrations.yourApiKeys')}</p>
             {activeKeys.length === 0 ? (
               <div className="bg-[#111315] border border-dashed border-slate-700/40 rounded-lg px-4 py-4 text-center">
-                <p className="text-[12px] text-slate-500">No active API keys yet.</p>
-                <p className="text-[11px] text-slate-600 mt-1">Go to <span className="text-[#06d4ef]">API Keys</span> tab to create one.</p>
+                <p className="text-[12px] text-slate-500">{t('integrations.noActiveKeys')}</p>
+                <p className="text-[11px] text-slate-600 mt-1">{t('integrations.goToApiKeysHint')}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -581,7 +580,7 @@ function ZapierModal({ onClose }: { onClose: () => void }) {
                       onClick={() => copy(k.keyPrefix, k.id)}
                       className="text-[11px] px-2 py-0.5 rounded bg-slate-700/40 text-slate-400 hover:text-slate-200 border border-slate-600/30 transition-colors"
                     >
-                      {copied === k.id ? 'Copied!' : 'Copy prefix'}
+                      {copied === k.id ? t('integrations.copied') : t('integrations.copyPrefix')}
                     </button>
                   </div>
                 ))}
@@ -591,7 +590,7 @@ function ZapierModal({ onClose }: { onClose: () => void }) {
 
           {/* JSON body reference */}
           <div>
-            <p className="text-[12px] font-medium text-slate-400 mb-1.5">Request Body (JSON)</p>
+            <p className="text-[12px] font-medium text-slate-400 mb-1.5">{t('integrations.requestBodyJson')}</p>
             <div className="bg-[#111315] border border-slate-700/40 rounded-lg px-3 py-3">
               <pre className="text-[12px] text-slate-300 font-mono whitespace-pre-wrap">{`{
   "message": "{{your_zap_field}}",
@@ -659,8 +658,8 @@ export default function IntegrationsPage() {
 
   const tabs = [
     { key: 'connectors' as const, label: t('integrations.connectorsTab'), icon: Cable },
-    { key: 'webhooks' as const, label: 'Webhooks', icon: Webhook },
-    { key: 'logs' as const, label: 'API Logs', icon: Activity },
+    { key: 'webhooks' as const, label: t('integrations.webhooksTab'), icon: Webhook },
+    { key: 'logs' as const, label: t('integrations.logsTab'), icon: Activity },
   ];
 
   return (

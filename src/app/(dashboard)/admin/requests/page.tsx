@@ -29,10 +29,10 @@ export default function AdminRequestsPage() {
     setSuccessMsg(null);
     try {
       const res = await api.post(`/admin/access-requests/${id}/approve`, {});
-      setSuccessMsg(res.data?.message || 'Request approved');
+      setSuccessMsg(res.data?.message || t('requests.approved'));
       mutate();
     } catch (err: any) {
-      showAlert(err?.response?.data?.message || 'Failed to approve', { variant: 'danger' });
+      showAlert(err?.response?.data?.message || t('requests.approveFailed'), { variant: 'danger' });
     } finally {
       setProcessing(null);
     }
@@ -45,7 +45,7 @@ export default function AdminRequestsPage() {
       await api.post(`/admin/access-requests/${id}/reject`);
       mutate();
     } catch (err: any) {
-      showAlert(err?.response?.data?.message || 'Failed to reject', { variant: 'danger' });
+      showAlert(err?.response?.data?.message || t('requests.rejectFailed'), { variant: 'danger' });
     } finally {
       setProcessing(null);
     }

@@ -28,7 +28,7 @@ export function Nav() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
         <Link href="/">
-          <VerseBrand size="sm" />
+          <VerseBrand size="sm" byMoovehub />
         </Link>
 
         <div className="hidden md:flex items-center gap-7 text-[13px] text-zinc-400">

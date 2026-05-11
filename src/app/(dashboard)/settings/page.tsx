@@ -66,7 +66,7 @@ export default function SettingsPage() {
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to upload logo', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('settings.uploadLogoFailed'), { variant: 'danger' });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -91,7 +91,7 @@ export default function SettingsPage() {
         });
       }
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to upload photo', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('settings.uploadPhotoFailed'), { variant: 'danger' });
     } finally {
       setPhotoUploading(false);
       if (photoInputRef.current) photoInputRef.current.value = '';
@@ -99,7 +99,7 @@ export default function SettingsPage() {
   };
 
   const handlePhotoDelete = async () => {
-    if (!await confirm('Are you sure you want to delete your profile photo?', { variant: 'danger', title: 'Delete Photo' })) return;
+    if (!await confirm(t('settings.deletePhotoConfirm'), { variant: 'danger', title: t('settings.deletePhotoTitle') })) return;
     setPhotoDeleting(true);
     try {
       await api.delete('/tenant/profile-photo');
@@ -110,7 +110,7 @@ export default function SettingsPage() {
         });
       }
     } catch (err: any) {
-      showAlert(err.response?.data?.message || 'Failed to delete photo', { variant: 'danger' });
+      showAlert(err.response?.data?.message || t('settings.deletePhotoFailed'), { variant: 'danger' });
     } finally {
       setPhotoDeleting(false);
     }
@@ -135,7 +135,7 @@ export default function SettingsPage() {
     : '?';
 
   const roleBadge = (role: string) => {
-    const label = role.replace(/_/g, ' ');
+    const label = t('superAdmin.roles.' + role);
     return (
       <span className="px-2.5 py-1 rounded-full bg-[#06d4ef]/10 text-[#06d4ef] text-[11px] font-semibold tracking-wide border border-[#06d4ef]/20">
         {label}
@@ -175,7 +175,7 @@ export default function SettingsPage() {
               <div className="relative group shrink-0">
                 <div className="h-16 w-16 rounded-full overflow-hidden ring-2 ring-slate-200 dark:ring-slate-700 group-hover:ring-[#06d4ef]/40 transition-all">
                   {profilePhotoSrc ? (
-                    <img src={profilePhotoSrc} alt="Profile" className="h-full w-full object-cover" />
+                    <img src={profilePhotoSrc} alt={t('settings.profileAlt')} className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full bg-gradient-to-br from-[#06d4ef] to-[#6366f1] flex items-center justify-center">
                       <span className="text-xl font-bold text-white">{initials}</span>
@@ -210,7 +210,7 @@ export default function SettingsPage() {
                   onClick={handlePhotoDelete}
                   disabled={photoDeleting}
                   className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-colors shrink-0"
-                  title="Remove photo"
+                  title={t('settings.removePhoto')}
                 >
                   {photoDeleting
                     ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -233,7 +233,7 @@ export default function SettingsPage() {
                 </span>
                 <div className="flex items-center gap-2.5">
                   {logoSrc && (
-                    <img src={logoSrc} alt="Org logo" className="h-5 w-5 rounded object-cover" />
+                    <img src={logoSrc} alt={t('settings.orgLogoAlt')} className="h-5 w-5 rounded object-cover" />
                   )}
                   <span className="text-sm text-slate-700 dark:text-slate-200">{tenantInfo?.name || '-'}</span>
                 </div>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
                   <div className="relative group shrink-0">
                     <div className="h-24 w-24 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 group-hover:border-[#06d4ef]/50 flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#111315] transition-all">
                       {logoSrc ? (
-                        <img src={logoSrc} alt="Organization logo" className="h-full w-full object-cover rounded-xl" />
+                        <img src={logoSrc} alt={t('settings.orgLogoAlt')} className="h-full w-full object-cover rounded-xl" />
                       ) : (
                         <Building2 className="h-9 w-9 text-slate-400 dark:text-slate-600" />
                       )}
@@ -276,8 +276,8 @@ export default function SettingsPage() {
                   {/* Upload info */}
                   <div className="flex-1 space-y-3 pt-1">
                     <div>
-                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{tenantInfo?.name || 'Your Organization'}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">PNG, JPEG, WebP — max 5 MB</p>
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{tenantInfo?.name || t('settings.yourOrganization')}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{t('settings.logoFormatsHint')}</p>
                     </div>
                     <input
                       type="file"

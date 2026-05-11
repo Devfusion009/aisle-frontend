@@ -198,7 +198,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
       const remainingSlots = MAX_IMAGES - current.length;
 
       if (remainingSlots <= 0) {
-        showWarning(`You can attach up to ${MAX_IMAGES} images per message.`);
+        showWarning(t('chatInput.tooManyImages', { max: MAX_IMAGES }));
         return;
       }
 
@@ -207,15 +207,15 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
 
       for (const file of files) {
         if (accepted.length >= remainingSlots) {
-          rejections.push(`Only ${MAX_IMAGES} images allowed (ignored "${file.name}")`);
+          rejections.push(t('chatInput.onlyNAllowed', { max: MAX_IMAGES, name: file.name }));
           continue;
         }
         if (!ACCEPTED_MIME.test(file.type)) {
-          rejections.push(`"${file.name}" is not an image`);
+          rejections.push(t('chatInput.notAnImage', { name: file.name }));
           continue;
         }
         if (file.size > MAX_IMAGE_BYTES) {
-          rejections.push(`"${file.name}" exceeds ${formatBytes(MAX_IMAGE_BYTES)}`);
+          rejections.push(t('chatInput.imageTooLarge', { name: file.name, size: formatBytes(MAX_IMAGE_BYTES) }));
           continue;
         }
         const id = nextTempId();
@@ -268,7 +268,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
         showWarning(rejections[0]);
       }
     },
-    [showWarning],
+    [showWarning, t],
   );
 
   const removeImage = useCallback((id: string) => {
@@ -291,7 +291,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
 
     // Block while any image is still being base64-encoded.
     if (images.some((i) => i.status === 'reading')) {
-      showWarning('Still processing images — try again in a moment.');
+      showWarning(t('chatInput.stillProcessing'));
       return;
     }
 
@@ -400,7 +400,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-3xl bg-purple-50/90 dark:bg-purple-950/80 border-2 border-dashed border-purple-400 dark:border-purple-500 pointer-events-none">
             <ImageIcon className="h-7 w-7 text-purple-600 dark:text-purple-300 mb-1" />
             <p className="text-sm font-medium text-purple-700 dark:text-purple-200">
-              Drop up to {MAX_IMAGES} images to attach
+              {t('chatInput.dropImages', { max: MAX_IMAGES })}
             </p>
           </div>
         )}
@@ -434,7 +434,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
                 <button
                   type="button"
                   onClick={() => removeImage(img.id)}
-                  aria-label={`Remove ${img.name}`}
+                  aria-label={t('chatInput.removeImage', { name: img.name })}
                   className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                 >
                   <X className="h-3 w-3" />
@@ -449,7 +449,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="h-16 w-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-slate-400 hover:text-purple-500 hover:border-purple-400 dark:hover:border-purple-600 transition-colors flex items-center justify-center"
-                aria-label="Add more images"
+                aria-label={t('chatInput.addMoreImages')}
               >
                 <ImageIcon className="h-5 w-5" />
               </button>
@@ -482,13 +482,13 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
             disabled={images.length >= MAX_IMAGES}
             title={
               images.length >= MAX_IMAGES
-                ? `Maximum ${MAX_IMAGES} images reached`
-                : 'Attach image (or drag & drop / paste)'
+                ? t('chatInput.maxImagesReached', { max: MAX_IMAGES })
+                : t('chatInput.attachImageHint')
             }
             className="shrink-0 mb-0.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded-full dark:hover:text-purple-400 dark:hover:bg-purple-500/20 transition-colors disabled:opacity-40"
           >
             <Paperclip className="h-5 w-5" />
-            <span className="sr-only">Attach image</span>
+            <span className="sr-only">{t('chatInput.attachImage')}</span>
           </Button>
 
           <div className="relative flex-1 min-w-0 flex items-center mb-0.5">
@@ -500,7 +500,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
               onPaste={handlePaste}
               placeholder={
                 images.length > 0
-                  ? 'Add a question about the image(s)…'
+                  ? t('chatInput.imageQuestionPlaceholder')
                   : t('chat.placeholder')
               }
               className="w-full resize-none border-0 bg-transparent px-2 py-3 text-[15px] focus:ring-0 placeholder:text-slate-400 dark:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] max-h-[200px] outline-none"
@@ -520,7 +520,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
             ) : (
               <SendHorizontal className="h-5 w-5 ml-0.5" />
             )}
-            <span className="sr-only">Send</span>
+            <span className="sr-only">{t('chatInput.send')}</span>
           </Button>
         </div>
       </form>

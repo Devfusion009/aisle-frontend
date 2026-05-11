@@ -233,7 +233,7 @@ function ChatHistoryPanel({
             <span className="text-[14px] font-semibold text-slate-100 truncate">{conversation.userName}</span>
             {isDeletedByUser ? (
               <span className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 text-red-400 bg-red-400/10 flex items-center gap-0.5">
-                <Trash2 className="h-2.5 w-2.5" /> Deleted by user
+                <Trash2 className="h-2.5 w-2.5" /> {t('conversations.deletedByUser')}
               </span>
             ) : (
               <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
@@ -250,10 +250,10 @@ function ChatHistoryPanel({
           </p>
         </div>
         <div className="flex flex-col items-end gap-0.5 shrink-0">
-          <span className="text-[11px] text-slate-600">{messages.length} msgs</span>
+          <span className="text-[11px] text-slate-600">{messages.length} {t('conversations.msgs')}</span>
           {totalTokensUsed != null && totalTokensUsed > 0 && (
             <span className="text-[11px] text-slate-600 flex items-center gap-0.5">
-              <Zap className="h-2.5 w-2.5" />{totalTokensUsed.toLocaleString()} tok
+              <Zap className="h-2.5 w-2.5" />{totalTokensUsed.toLocaleString()} {t('conversations.tok')}
             </span>
           )}
         </div>
@@ -401,7 +401,7 @@ export default function AdminConversationsPage() {
                     : 'bg-transparent text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'
                 }`}
               >
-                {f === 'all' ? t('conversations.filterAll') : f === 'active' ? t('conversations.filterActive') : f === 'closed' ? t('conversations.filterClosed') : 'Deleted'}
+                {f === 'all' ? t('conversations.filterAll') : f === 'active' ? t('conversations.filterActive') : f === 'closed' ? t('conversations.filterClosed') : t('conversations.filterDeleted')}
               </button>
             ))}
           </div>
@@ -451,7 +451,7 @@ export default function AdminConversationsPage() {
                       <span className="text-[13px] font-semibold text-slate-100 truncate">{conv.userName}</span>
                       {conv.isDeletedByUser ? (
                         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 text-red-400 bg-red-400/10 flex items-center gap-0.5">
-                          <Trash2 className="h-2.5 w-2.5" /> Deleted
+                          <Trash2 className="h-2.5 w-2.5" /> {t('conversations.filterDeleted')}
                         </span>
                       ) : (
                         <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
@@ -467,7 +467,7 @@ export default function AdminConversationsPage() {
                     <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600">
                       <span className="truncate max-w-[100px]">{conv.assistantName}</span>
                       <span>·</span>
-                      <span>{conv.messages} msgs</span>
+                      <span>{conv.messages} {t('conversations.msgs')}</span>
                       {conv.totalTokensUsed > 0 && (
                         <>
                           <span>·</span>
@@ -495,7 +495,7 @@ export default function AdminConversationsPage() {
       <div
         onMouseDown={handleDragStart}
         className="hidden md:flex w-1 shrink-0 cursor-col-resize items-center justify-center group relative z-10 hover:bg-[#06d4ef]/20 transition-colors"
-        title="Drag to resize"
+        title={t('conversations.dragResize')}
       >
         <div className="w-0.5 h-8 rounded-full bg-slate-700 group-hover:bg-[#06d4ef]/60 transition-colors" />
       </div>

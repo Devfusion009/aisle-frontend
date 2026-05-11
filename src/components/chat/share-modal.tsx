@@ -56,6 +56,7 @@ export function ShareModal({ title, chatId, onClose }: ShareModalProps) {
 
   const shareActions = [
     {
+      id: 'copy',
       label: copied ? t('share.copied') : t('share.copyLink'),
       icon: loadingToken
         ? <Loader2 className="h-5 w-5 text-white animate-spin" />
@@ -64,6 +65,7 @@ export function ShareModal({ title, chatId, onClose }: ShareModalProps) {
       onClick: handleCopy,
     },
     {
+      id: 'x',
       label: 'X',
       icon: (
         <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -74,6 +76,7 @@ export function ShareModal({ title, chatId, onClose }: ShareModalProps) {
       onClick: () => window.open(`https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank'),
     },
     {
+      id: 'linkedin',
       label: 'LinkedIn',
       icon: (
         <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -84,6 +87,7 @@ export function ShareModal({ title, chatId, onClose }: ShareModalProps) {
       onClick: () => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank'),
     },
     {
+      id: 'reddit',
       label: 'Reddit',
       icon: (
         <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -136,9 +140,9 @@ export function ShareModal({ title, chatId, onClose }: ShareModalProps) {
           <div className="flex items-center justify-center gap-6">
             {shareActions.map((action) => (
               <button
-                key={action.label}
+                key={action.id}
                 onClick={action.onClick}
-                disabled={loadingToken && action.label !== 'Copy link' && action.label !== 'Copied!'}
+                disabled={loadingToken && action.id !== 'copy'}
                 className="flex flex-col items-center gap-2 group disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <div className={cn(
@@ -158,12 +162,12 @@ export function ShareModal({ title, chatId, onClose }: ShareModalProps) {
           <div className="mt-5 flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 rounded-xl px-3 py-2.5">
             {loadingToken ? (
               <span className="flex items-center gap-2 flex-1 text-[12px] text-slate-500">
-                <Loader2 className="h-3 w-3 animate-spin" /> Generating link…
+                <Loader2 className="h-3 w-3 animate-spin" /> {t('share.generatingLink')}
               </span>
             ) : url ? (
               <span className="text-[12px] text-slate-400 truncate flex-1 font-mono">{url}</span>
             ) : (
-              <span className="text-[12px] text-red-400 flex-1">Failed to generate link</span>
+              <span className="text-[12px] text-red-400 flex-1">{t('share.linkFailed')}</span>
             )}
             <button
               onClick={handleCopy}

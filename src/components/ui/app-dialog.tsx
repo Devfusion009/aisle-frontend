@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useRef, useState } from 'react';
 import { AlertTriangle, Info, Loader2, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,7 @@ const DialogContext = createContext<DialogContextValue | null>(null);
 // ── Provider ──────────────────────────────────────────────────────────────
 
 export function AppDialogProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const [current, setCurrent] = useState<DialogState | null>(null);
   const [loading, setLoading] = useState(false);
   const queueRef = useRef<DialogState[]>([]);
@@ -58,7 +60,7 @@ export function AppDialogProvider({ children }: { children: React.ReactNode }) {
 
   const showAlert = useCallback((message: string, options: Pick<DialogOptions, 'title' | 'variant'> = {}): Promise<void> => {
     return new Promise((resolve) => {
-      push({ type: 'alert', message, options: { ...options, confirmLabel: 'OK' }, resolve: () => resolve() });
+      push({ type: 'alert', message, options: { ...options, confirmLabel: t('common.ok') }, resolve: () => resolve() });
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
@@ -138,7 +140,7 @@ export function AppDialogProvider({ children }: { children: React.ReactNode }) {
                   disabled={loading}
                   className="flex-1 px-4 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
                 >
-                  {current.options.cancelLabel ?? 'Cancel'}
+                  {current.options.cancelLabel ?? t('common.cancel')}
                 </button>
               )}
               <button
@@ -147,7 +149,7 @@ export function AppDialogProvider({ children }: { children: React.ReactNode }) {
                 className={`flex-1 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-colors flex items-center justify-center gap-2 ${confirmBtnClass()}`}
               >
                 {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                {current.options.confirmLabel ?? 'Confirm'}
+                {current.options.confirmLabel ?? t('common.confirm')}
               </button>
             </div>
           </div>

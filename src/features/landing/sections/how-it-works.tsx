@@ -23,8 +23,8 @@ export function HowItWorks() {
 
   const steps: Step[] = [
     {
-      num: '01 — Provision',
-      heading: 'Spin up an isolated workspace.',
+      num: t('landing.howStep1Number'),
+      heading: t('landing.howStep1Heading'),
       detail: t('landing.step1Detail'),
       mock: [
         ['POST', '/v1/tenants', true],
@@ -36,7 +36,7 @@ export function HowItWorks() {
       ],
     },
     {
-      num: '02 — Ingest',
+      num: t('landing.howStep2Number'),
       heading: t('landing.step2Action'),
       detail: t('landing.step2Detail'),
       mock: [
@@ -48,11 +48,11 @@ export function HowItWorks() {
       ],
     },
     {
-      num: '03 — Ask',
+      num: t('landing.howStep3Number'),
       heading: t('landing.step3Action'),
       detail: t('landing.step3Detail'),
       mock: [
-        ['→', '"What\'s our refund policy?"', false],
+        ['→', `"${t('landing.howSampleQuestion')}"`, false],
         ['retrieve', '8 chunks · 312ms', false],
         ['model', 'gpt-4o-mini', false],
         ['cites', 'policies/refund.md, faq.pdf', true],
@@ -67,11 +67,11 @@ export function HowItWorks() {
       <FadeIn direction="up" className="text-center max-w-2xl mx-auto mb-16">
         <div className="inline-flex items-center gap-2 mb-3 text-[11px] font-mono uppercase tracking-[0.1em] text-violet-300">
           <span className="h-px w-7 bg-white/[0.1]" />
-          How it works
+          {t('landing.howEyebrow')}
           <span className="h-px w-7 bg-white/[0.1]" />
         </div>
         <h2 className="text-3xl md:text-5xl font-medium tracking-[-0.025em] leading-[1.05]">
-          From <em className="italic font-normal text-zinc-500">blank canvas</em> to private AI in three moves.
+          {t('landing.howTitlePart1')}<em className="italic font-normal text-zinc-500">{t('landing.howTitleEm')}</em>{t('landing.howTitlePart2')}
         </h2>
       </FadeIn>
 

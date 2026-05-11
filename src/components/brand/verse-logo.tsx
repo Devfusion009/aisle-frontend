@@ -101,12 +101,14 @@ interface VerseBrandProps {
   size?: 'sm' | 'md' | 'lg';
   /** Show only the boxed logo, no text. */
   iconOnly?: boolean;
+  /** Render a small "by Moovehub" subtitle stacked under the wordmark. */
+  byMoovehub?: boolean;
 }
 
 const SIZE_CLASSES = {
-  sm: { box: 'h-7 w-7', icon: 'w-4 h-4', text: 'text-[13px]' },
-  md: { box: 'h-9 w-9', icon: 'w-5 h-5', text: 'text-[15px]' },
-  lg: { box: 'h-12 w-12', icon: 'w-7 h-7', text: 'text-[18px]' },
+  sm: { box: 'h-7 w-7',   icon: 'w-4 h-4', text: 'text-[13px]', sub: 'text-[9px]'  },
+  md: { box: 'h-9 w-9',   icon: 'w-5 h-5', text: 'text-[15px]', sub: 'text-[10px]' },
+  lg: { box: 'h-12 w-12', icon: 'w-7 h-7', text: 'text-[18px]', sub: 'text-[11px]' },
 } as const;
 
 export function VerseBrand({
@@ -114,14 +116,22 @@ export function VerseBrand({
   textClassName,
   size = 'md',
   iconOnly = false,
+  byMoovehub = false,
 }: VerseBrandProps) {
   const s = SIZE_CLASSES[size];
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
       <VerseLogoBoxed className={s.box} iconClassName={s.icon} />
       {!iconOnly && (
-        <span className={cn('font-semibold tracking-tight', s.text, textClassName)}>
-          Verse AI
+        <span className="inline-flex flex-col leading-tight">
+          <span className={cn('font-semibold tracking-tight', s.text, textClassName)}>
+            Verse AI
+          </span>
+          {byMoovehub && (
+            <span className={cn('font-normal tracking-wide text-zinc-500', s.sub)}>
+              by Moovehub
+            </span>
+          )}
         </span>
       )}
     </span>

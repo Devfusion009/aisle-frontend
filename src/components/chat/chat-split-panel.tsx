@@ -58,7 +58,7 @@ function ConvItem({
   const { t } = useTranslation();
   const { confirm } = useDialog();
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(conv.title || 'New Conversation');
+  const [editTitle, setEditTitle] = useState(conv.title || t('chat.newConversation'));
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +72,7 @@ function ConvItem({
 
   const handleSave = async () => {
     const trimmed = editTitle.trim();
-    if (trimmed && trimmed !== (conv.title || 'New Conversation')) {
+    if (trimmed && trimmed !== (conv.title || t('chat.newConversation'))) {
       await onRename(conv.id, trimmed);
     }
     setIsEditing(false);
@@ -89,7 +89,7 @@ function ConvItem({
           onBlur={handleSave}
           onKeyDown={(e) => {
             if (e.key === 'Enter') { e.preventDefault(); handleSave(); }
-            if (e.key === 'Escape') { setIsEditing(false); setEditTitle(conv.title || 'New Conversation'); }
+            if (e.key === 'Escape') { setIsEditing(false); setEditTitle(conv.title || t('chat.newConversation')); }
           }}
         />
       </div>
@@ -109,7 +109,7 @@ function ConvItem({
         )}
       >
         {conv.isPinned && <Pin className="h-3 w-3 mr-1.5 shrink-0 text-[#06d4ef] -rotate-45" />}
-        <span className="truncate flex-1">{conv.title || 'New Conversation'}</span>
+        <span className="truncate flex-1">{conv.title || t('chat.newConversation')}</span>
       </button>
 
       {/* Three-dot menu */}
@@ -179,7 +179,7 @@ function ConvItem({
       </div>
       {showShare && (
         <ShareModal
-          title={conv.title || 'New Conversation'}
+          title={conv.title || t('chat.newConversation')}
           chatId={conv.id}
           onClose={() => setShowShare(false)}
         />
@@ -271,7 +271,7 @@ export function ChatSplitPanel({ initialId }: { initialId?: string }) {
   };
 
   const filtered = (conversations || []).filter((c) =>
-    !search.trim() || (c.title || 'New Conversation').toLowerCase().includes(search.toLowerCase())
+    !search.trim() || (c.title || t('chat.newConversation')).toLowerCase().includes(search.toLowerCase())
   );
   const pinned = filtered.filter((c) => c.isPinned && !c.isArchived);
   const recent = filtered.filter((c) => !c.isPinned && !c.isArchived);
@@ -401,7 +401,7 @@ export function ChatSplitPanel({ initialId }: { initialId?: string }) {
       <div
         onMouseDown={handleDividerMouseDown}
         className="w-[5px] shrink-0 flex items-center justify-center cursor-col-resize group relative bg-slate-200/50 dark:bg-slate-800/50 hover:bg-[#06d4ef]/30 active:bg-[#06d4ef]/50 transition-colors"
-        title="Drag to resize"
+        title={t('chat.dragToResize')}
       >
         <GripVertical className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-[#06d4ef] transition-colors opacity-0 group-hover:opacity-100" />
       </div>

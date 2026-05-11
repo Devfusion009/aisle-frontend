@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "verse.ai — Multi-tenant RAG Platform",
-  description: "Ask your company docs anything. A multi-tenant RAG platform with total data isolation.",
+  title: "verse.ai — Private AI for your team",
+  description: "Ask your company docs anything. A private AI for teams that keeps every organization's data separate.",
 };
 
 export default function RootLayout({

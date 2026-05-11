@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 const fetcher = (url: string) => api.get(url).then((r: any) => r.data);
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
 
 // Provider → color palette (first model gets index 0, second gets index 1, etc.)
 const PROVIDER_PALETTES: Record<string, string[]> = {
@@ -37,6 +37,7 @@ function assignModelColors(summary: { model: string; provider: string; tokens: n
 }
 
 function ModelTimelineTooltip({ active, payload, label, modelColors }: any) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   const total = payload.reduce((s: number, p: any) => s + (Number(p.value) || 0), 0);
   if (total === 0) return null;
@@ -56,27 +57,28 @@ function ModelTimelineTooltip({ active, payload, label, modelColors }: any) {
         );
       })}
       <div style={{ borderTop: '1px solid #334155', marginTop: 7, paddingTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: '#64748b', fontSize: 11 }}>Total</span>
-        <span style={{ color: '#e2e8f0', fontWeight: 700 }}>{total.toLocaleString()} tokens</span>
+        <span style={{ color: '#64748b', fontSize: 11 }}>{t('dashboard.totalLabel')}</span>
+        <span style={{ color: '#e2e8f0', fontWeight: 700 }}>{total.toLocaleString()}{' ' + t('common.tokens')}</span>
       </div>
     </div>
   );
 }
 
-function getTimeAgo(dateStr: string): string {
+function getTimeAgo(dateStr: string, t: (key: string, options?: any) => string): string {
   let s = dateStr.replace(' ', 'T');
   if (!/Z|[+-]\d{2}:?\d{2}$/.test(s)) s += 'Z';
   const seconds = Math.floor((Date.now() - new Date(s).getTime()) / 1000);
-  if (seconds < 60) return `${seconds}s atrás`;
+  if (seconds < 5) return t('dashboard.timeAgo.justNow');
+  if (seconds < 60) return t('dashboard.timeAgo.secondsAgo', { count: seconds });
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m atrás`;
+  if (minutes < 60) return t('dashboard.timeAgo.minutesAgo', { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h atrás`;
+  if (hours < 24) return t('dashboard.timeAgo.hoursAgo', { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} dias atrás`;
+  if (days < 30) return t('dashboard.timeAgo.daysAgo', { count: days });
   const months = Math.floor(days / 30);
-  if (months < 12) return `${months} meses atrás`;
-  return `${Math.floor(months / 12)} anos atrás`;
+  if (months < 12) return t('dashboard.timeAgo.monthsAgo', { count: months });
+  return t('dashboard.timeAgo.yearsAgo', { count: Math.floor(months / 12) });
 }
 
 // Custom X-axis tick that renders day name + date on two lines
@@ -100,6 +102,8 @@ export default function TenantAdminDashboard() {
   const { t } = useTranslation();
   const [period, setPeriod] = useState<Period>('7');
   const [brushRange, setBrushRange] = useState<{ startIndex: number; endIndex: number } | null>(null);
+
+  const MONTHS = MONTH_KEYS.map((k) => t(`dashboard.monthsShort.${k}`));
 
   // Reset brush whenever period changes
   useEffect(() => { setBrushRange(null); }, [period]);
@@ -204,7 +208,7 @@ export default function TenantAdminDashboard() {
   if (error) {
     return (
       <div className="flex h-full items-center justify-center bg-[#111315]">
-        <p className="text-red-400 font-medium">Error loading dashboard data.</p>
+        <p className="text-red-400 font-medium">{t('dashboard.errorLoading')}</p>
       </div>
     );
   }
@@ -295,8 +299,8 @@ export default function TenantAdminDashboard() {
           <div className="flex items-center justify-between">
             <p className="text-[12px] text-slate-500 font-medium">
               {visibleCount < dataLen
-                ? `Showing ${visibleCount} of ${dataLen} days`
-                : `Showing ${dataLen} day${dataLen !== 1 ? 's' : ''}`}
+                ? t('dashboard.showingDays', { shown: visibleCount, total: dataLen })
+                : t('dashboard.showingDay', { count: dataLen })}
             </p>
             <div className="flex items-center gap-1.5">
               {/* Period selector */}
@@ -322,7 +326,7 @@ export default function TenantAdminDashboard() {
                 onClick={zoomOut}
                 disabled={isAtFullRange}
                 className={ctrlBtn}
-                title="Zoom out"
+                title={t('dashboard.zoomOut')}
               >
                 <ZoomOut className="h-3.5 w-3.5" />
               </button>
@@ -330,7 +334,7 @@ export default function TenantAdminDashboard() {
                 onClick={zoomIn}
                 disabled={visibleCount <= 3}
                 className={ctrlBtn}
-                title="Zoom in"
+                title={t('dashboard.zoomIn')}
               >
                 <ZoomIn className="h-3.5 w-3.5" />
               </button>
@@ -338,7 +342,7 @@ export default function TenantAdminDashboard() {
                 onClick={resetZoom}
                 disabled={isAtFullRange}
                 className={ctrlBtn}
-                title="Reset zoom"
+                title={t('dashboard.resetZoom')}
               >
                 <RotateCcw className="h-3 w-3" />
               </button>
@@ -425,7 +429,7 @@ export default function TenantAdminDashboard() {
                       itemStyle={{ color: '#e2e8f0' }}
                       cursor={{ fill: '#2e3a47', opacity: 0.4 }}
                       labelFormatter={(label: any) => String(label).replace('|', ' · ')}
-                      formatter={(val: any) => [Number(val).toLocaleString() + ' tokens', 'Consumed']}
+                      formatter={(val: any) => [Number(val).toLocaleString() + ' ' + t('common.tokens'), t('dashboard.consumed')]}
                     />
                     <Bar dataKey="tokens" fill="#06d4ef" radius={[2, 2, 0, 0]} />
                     {dataLen > 0 && (
@@ -526,7 +530,7 @@ export default function TenantAdminDashboard() {
                     </div>
                   </div>
                   <span className="text-[11px] text-slate-400 font-medium tabular-nums shrink-0">
-                    {modelColors.length} model{modelColors.length !== 1 ? 's' : ''}
+                    {t('dashboard.modelCount', { count: modelColors.length })}
                   </span>
                 </div>
 
@@ -535,10 +539,10 @@ export default function TenantAdminDashboard() {
                   className="grid grid-cols-[minmax(0,1fr)_5.75rem_3rem_4.5rem] gap-x-3 px-0.5 mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500"
                   aria-hidden
                 >
-                  <span>Model</span>
-                  <span className="text-center">Provider</span>
-                  <span className="text-right">Share</span>
-                  <span className="text-right">Tokens</span>
+                  <span>{t('dashboard.modelCol')}</span>
+                  <span className="text-center">{t('dashboard.providerCol')}</span>
+                  <span className="text-right">{t('dashboard.shareCol')}</span>
+                  <span className="text-right">{t('dashboard.tokensCol')}</span>
                 </div>
 
                 <div
@@ -596,10 +600,10 @@ export default function TenantAdminDashboard() {
                 {/* Footer total */}
                 <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
-                    Total
+                    {t('dashboard.totalLabel')}
                   </span>
                   <span className="text-sm font-bold text-slate-100 tabular-nums">
-                    {formatTokens(totalModelTokens)} tokens
+                    {formatTokens(totalModelTokens)} {t('common.tokens')}
                   </span>
                 </div>
               </div>
@@ -657,7 +661,7 @@ export default function TenantAdminDashboard() {
                         {conv.messages || 0}
                       </td>
                       <td className="px-5 py-3.5 text-[12px] text-slate-500">
-                        {conv.createdAt ? getTimeAgo(conv.createdAt) : ''}
+                        {conv.createdAt ? getTimeAgo(conv.createdAt, t) : ''}
                       </td>
                     </tr>
                   ))}

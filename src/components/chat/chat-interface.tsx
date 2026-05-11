@@ -320,7 +320,7 @@ export function ChatInterface({ conversationId, onNewConversation }: ChatInterfa
           <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#0f1117]/90 border border-amber-500/30 shadow-xl backdrop-blur-sm">
             <Zap className="h-3.5 w-3.5 text-amber-400 shrink-0" />
             <span className="text-[13px] font-medium text-amber-300">{fallbackToast}</span>
-            <span className="text-[12px] text-slate-400">is now responding</span>
+            <span className="text-[12px] text-slate-400">{t('chat.isNowResponding')}</span>
           </div>
         </div>
       )}
