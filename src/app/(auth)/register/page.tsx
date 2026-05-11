@@ -25,7 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 type RegisterFormValues = {
   name: string;
   email: string;
-  newTenantName?: string;
+  newTenantName: string;
   message?: string;
 };
 
@@ -34,7 +34,7 @@ export default function RegisterPage() {
   const registerSchema = z.object({
     name: z.string().min(2, t('register.validation.nameMin')).max(255),
     email: z.string().email(t('register.validation.emailInvalid')),
-    newTenantName: z.string().min(2, t('register.validation.orgNameMin')).max(255).optional().or(z.literal('')),
+    newTenantName: z.string().min(2, t('register.validation.orgNameMin')).max(255),
     message: z.string().max(1000).optional().or(z.literal('')),
   });
 
@@ -57,7 +57,7 @@ export default function RegisterPage() {
       const msg = await requestAccess({
         name: values.name,
         email: values.email,
-        newTenantName: values.newTenantName || undefined,
+        newTenantName: values.newTenantName.trim(),
         message: values.message || undefined,
       });
       setSuccessMessage(msg);
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-gray-400 text-[13px] font-normal">
-                            {t('register.orgNameLabel')} <span className="text-gray-600">{t('register.optionalSuffix')}</span>
+                            {t('register.orgNameLabel')}
                           </FormLabel>
                           <FormControl>
                             <Input

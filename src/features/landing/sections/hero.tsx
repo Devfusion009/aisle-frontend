@@ -56,6 +56,7 @@ export function Hero() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
               </svg>
             </Link>
+            {/* Commented by Jonata: I don't understand, I'll ask and maybe bring it back
             <Link
               href="/register"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-white/[0.1] bg-transparent text-zinc-200 font-medium text-[14px] hover:border-white/30 hover:bg-white/[0.04] transition-all"
@@ -65,19 +66,7 @@ export function Hero() {
               </svg>
               {t('landing.heroWatchDemo')}
             </Link>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={400} direction="up">
-          <div className="mt-9 inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] text-zinc-500">
-            <span className="inline-flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
-              {t('landing.heroTrustSoc')}
-            </span>
-            <span className="text-zinc-700">·</span>
-            <span>{t('landing.heroTrustResidency')}</span>
-            <span className="text-zinc-700">·</span>
-            <span>{t('landing.heroTrustSelfHost')}</span>
+            */}
           </div>
         </FadeIn>
       </div>

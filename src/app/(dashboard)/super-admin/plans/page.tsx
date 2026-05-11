@@ -170,7 +170,10 @@ export default function PlansConfigPage() {
 
         <div className="px-6 md:px-8 pb-8 max-w-4xl space-y-4">
           {isLoading && (
-            <div className="text-center py-12 text-slate-500 text-[13px]">{t('plansConfig.loading')}</div>
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500">
+              <Loader2 className="h-8 w-8 animate-spin text-[#06d4ef]" />
+              <span className="text-[13px]">{t('plansConfig.loading')}</span>
+            </div>
           )}
           {error && (
             <div className="text-center py-12 text-red-400 text-[13px]">{t('plansConfig.loadFailed')}</div>

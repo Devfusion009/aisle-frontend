@@ -5,14 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import useSWR, { mutate as globalMutate } from 'swr';
 import api from '@/lib/api';
-import { UserRole, UserPriority } from '@/types';
+import { UserRole, UserPriority, AccessRequest } from '@/types';
 import { useAuthStore } from '@/store/use-auth-store';
 import {
-  Users, Plus, ChevronDown, ChevronUp, Trash2, Loader2, X,
-  Shield, Star, Check, ShieldCheck, AlertTriangle, Crown, ShieldAlert,
+  Users, Plus, ChevronUp, Trash2, Loader2, X,
+  Shield, Star, Check, AlertTriangle, Crown, ShieldAlert, Bell, ArrowRight,
 } from 'lucide-react';
 import { SkeletonUserRow } from '@/components/ui/skeleton-loaders';
 import { useDialog } from '@/components/ui/app-dialog';
+import { PendingRequestsModal } from './pending-requests-modal';
 
 interface TenantUser {
   id: string;
@@ -218,6 +219,19 @@ export default function AdminUsersPage() {
   const currentUser = useAuthStore((s) => s.user);
   const { data: rawUsers, mutate } = useSWR<TenantUser[]>('/tenant-users', fetcher);
 
+  // Pending access requests for this tenant — only for TENANT_OWNER / TENANT_ADMIN.
+  // Polled every 5s so admins see new requests without refreshing.
+  const canReviewRequests =
+    currentUser?.role === UserRole.TENANT_OWNER ||
+    currentUser?.role === UserRole.TENANT_ADMIN;
+  const { data: pendingRequests, mutate: mutateRequests } = useSWR<AccessRequest[]>(
+    canReviewRequests ? '/admin/access-requests' : null,
+    fetcher,
+    { refreshInterval: 5000 },
+  );
+  const pendingCount = pendingRequests?.length ?? 0;
+  const [showRequestsModal, setShowRequestsModal] = useState(false);
+
   // Admins cannot see/manage owners; all roles filter out the current user
   const users = rawUsers?.filter((u) => {
     if (u.id === currentUser?.id) return false;
@@ -330,22 +344,66 @@ export default function AdminUsersPage() {
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#111315]/90">
-          <div className="px-6 md:px-8 pt-8 pb-4 flex items-center justify-between">
+          <div className="px-6 md:px-8 pt-8 pb-4 flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-slate-100">{t('users.title')}</h1>
               <p className="text-[13px] text-slate-400 mt-0.5">{t('users.subtitle')}</p>
             </div>
-            <button
-              onClick={() => setShowCreate(!showCreate)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#06d4ef] text-white text-[13px] font-semibold hover:bg-[#06d4ef]/90 transition-colors"
-            >
-              {showCreate ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {t('users.createUser')}
-            </button>
+            <div className="flex items-center gap-2">
+              {canReviewRequests && pendingCount > 0 && (
+                <button
+                  onClick={() => setShowRequestsModal(true)}
+                  className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[13px] font-medium transition-colors"
+                  aria-label={t('users.pendingRequests.bellAria', { count: pendingCount, defaultValue: '{{count}} pending access requests' })}
+                >
+                  <Bell className="h-4 w-4" />
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-[10px] font-bold text-slate-900">
+                    {pendingCount}
+                  </span>
+                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+                </button>
+              )}
+              <button
+                onClick={() => setShowCreate(!showCreate)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#06d4ef] text-white text-[13px] font-semibold hover:bg-[#06d4ef]/90 transition-colors"
+              >
+                {showCreate ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {t('users.createUser')}
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="px-6 md:px-8 pb-10 space-y-6">
+          {/* Pending access requests banner */}
+          {canReviewRequests && pendingCount > 0 && (
+            <button
+              onClick={() => setShowRequestsModal(true)}
+              className="group w-full text-left rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/[0.08] via-amber-500/[0.05] to-transparent hover:from-amber-500/[0.12] hover:via-amber-500/[0.07] transition-all p-4 flex items-center gap-4"
+            >
+              <div className="relative shrink-0">
+                <div className="h-10 w-10 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+                  <Bell className="h-[18px] w-[18px] text-amber-400" />
+                </div>
+                <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-[#111315] animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-amber-200">
+                  {t('users.pendingRequests.bannerTitle', {
+                    count: pendingCount,
+                    defaultValue: '{{count}} pending access request',
+                  })}
+                </p>
+                <p className="text-[12px] text-amber-200/70 mt-0.5">
+                  {t('users.pendingRequests.bannerSubtitle', 'Review and approve people requesting to join your organization.')}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[12px] font-medium text-amber-300 group-hover:text-amber-200">
+                {t('users.pendingRequests.review', 'Review')}
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </button>
+          )}
           {/* Create User Panel */}
           {showCreate && (
             <div className="rounded-xl border border-slate-700 bg-[#1a1d21] p-5">
@@ -568,6 +626,16 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+
+      {/* Pending Requests Modal */}
+      {showRequestsModal && (
+        <PendingRequestsModal
+          requests={pendingRequests || []}
+          onClose={() => setShowRequestsModal(false)}
+          onMutate={() => mutateRequests()}
+          onUsersChanged={() => mutate()}
+        />
+      )}
 
       {/* Dataset Access Modal */}
       {accessModalUser && (

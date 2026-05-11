@@ -97,7 +97,7 @@ export interface AccessRequestFormData {
   email: string;
   message?: string;
   tenantSlug?: string;
-  newTenantName?: string;
+  newTenantName: string;
 }
 
 export interface AccessRequest {

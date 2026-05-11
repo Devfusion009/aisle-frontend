@@ -7,7 +7,6 @@ import { Hero } from './sections/hero';
 import { HeroPreview } from './sections/hero-preview';
 import { HowItWorks } from './sections/how-it-works';
 import { Nav } from './sections/nav';
-import { Stats } from './sections/stats';
 
 /**
  * LandingPage — composes the public marketing page from independent sections.
@@ -25,7 +24,6 @@ export function LandingPage() {
       <HeroPreview />
       <BentoFeatures />
       <HowItWorks />
-      <Stats />
       <CtaBand />
       <Footer />
     </div>

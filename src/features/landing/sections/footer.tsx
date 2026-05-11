@@ -19,7 +19,10 @@ export function Footer() {
         <Link href="/" className="flex items-start gap-3 group">
           <VerseLogoBoxed className="h-8 w-8" iconClassName="w-5 h-5" />
           <div>
-            <div className="text-[15px] font-semibold tracking-tight group-hover:text-violet-300 transition-colors">Verse AI</div>
+            <div className="text-[15px] font-semibold tracking-tight leading-tight group-hover:text-violet-300 transition-colors">
+              Verse AI
+              <span className="ml-2 text-[11px] font-normal tracking-wide text-zinc-500">by Moovehub</span>
+            </div>
             <p className="mt-0.5 text-[12px] text-zinc-500 leading-[1.5] max-w-[34ch]">
               {t('landing.footerTagline')}
             </p>
@@ -46,10 +49,6 @@ export function Footer() {
 
       <div className="mt-10 pt-5 border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono text-[11px] text-zinc-600">
         <span>{t('landing.footerCopyright', { year: new Date().getFullYear() })}</span>
-        <span className="inline-flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
-          {t('landing.footerStatusOk')}
-        </span>
       </div>
     </footer>
   );
