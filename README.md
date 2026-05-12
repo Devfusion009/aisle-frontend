@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aisle Frontend
 
-## Getting Started
+Next.js 16 app for the Aisle platform. Runs on **port 8927** in local dev, **port 3001** in production.
 
-First, run the development server:
+---
+
+## Prerequisites
+
+| Requirement | Check |
+|---|---|
+| Node.js v18+ | `node --version` |
+| Aisle backend running | `curl http://localhost:3002/health` |
+
+---
+
+## Local development — first-time setup
+
+### 1. Create the environment file
+
+```bash
+cp .env.local.example .env.local
+```
+
+If `.env.local.example` doesn't exist, create `.env.local` manually:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3002/api
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Frontend is ready at **http://localhost:8927**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> The backend must be running first. Start it with `npm run start:dev` inside the `backend/` folder, or run everything together from the repo root with `./start.sh`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Running the full app
 
-To learn more about Next.js, take a look at the following resources:
+From the **repo root**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+./start.sh
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:8927 |
+| Backend API | http://localhost:3002 |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Description | Example |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:3002/api` |
+
+---
+
+## Production deployment
+
+The frontend is deployed to EC2 via GitHub Actions (`deploy-frontend.yml` / `deploy-frontend-nv.yml`).
+
+**What the pipeline does:**
+1. Runs `npm ci` and `npx next build`
+2. Injects `NEXT_PUBLIC_API_URL` from GitHub secrets into `.env.production` at build time
+3. Zips `.next/`, `public/`, `package.json` and SCP's to EC2
+4. PM2 starts the server on **port 3001** (`npm run start -- -p 3001`)
+5. `iptables` redirects port 80 → 3001 so the app is reachable without root
+
+**Required GitHub secrets:**
+
+| Secret | Purpose |
+|---|---|
+| `FE_EC2_HOST` | EC2 instance IP |
+| `FE_EC2_USER` | SSH username |
+| `FE_EC2_SSH_KEY` | SSH private key |
+| `NEXT_PUBLIC_API_URL` | Production backend API URL |
+
+N. Virginia region uses the same secrets prefixed with `NV_`.
+
+---
+
+## Common commands
+
+```bash
+npm run dev      # Start dev server on port 8927 with hot reload
+npm run build    # Build for production
+npm run start    # Start production server (port passed by PM2 in prod)
+npm run lint     # Run ESLint
+```
+
+---
+
+## Key pages
+
+| Route | Description |
+|---|---|
+| `/login` | Authentication |
+| `/chat` | Chat with AI assistants |
+| `/admin/dashboard` | Admin overview |
+| `/admin/playground` | Test and tune assistants (admin only) |
+| `/admin/analytics` | Usage analytics |
+| `/knowledge` | Knowledge base management |
+| `/assistants` | Assistant management |
+| `/settings` | User settings |
+
+---
+
+## Troubleshooting
+
+**`EADDRINUSE :::8927`**
+Something else is on port 8927. Free it:
+```bash
+lsof -ti :8927 | xargs kill -9
+```
+
+**API calls failing / login not working**
+Check the backend is running and `NEXT_PUBLIC_API_URL` in `.env.local` points to it:
+```bash
+curl http://localhost:3002/health
+# should return {"status":"ok"}
+```
+
+**Warning: "Next.js inferred your workspace root"**
+Harmless — caused by multiple `package-lock.json` files in the monorepo. Ignore it.
