@@ -14,6 +14,54 @@ import {
 } from 'lucide-react';
 import { SkeletonPlayground } from '@/components/ui/skeleton-loaders';
 
+// ── Prompt templates ──────────────────────────────────────────────────
+const PROMPT_TEMPLATES: Record<'en' | 'pt', Array<{ id: string; name: string; prompt: string }>> = {
+  en: [
+    {
+      id: 'general',
+      name: 'General Assistant',
+      prompt: `You are a helpful AI assistant powered by Verse AI. You help users find information, answer questions clearly and concisely, and provide thoughtful guidance. When connected to a knowledge base, draw on it to give accurate, grounded answers. Be professional, friendly, and honest about the limits of your knowledge.`,
+    },
+    {
+      id: 'doc-qa',
+      name: 'Document Q&A',
+      prompt: `You are a document analysis expert powered by Verse AI. Your primary role is to answer questions based on documents in the knowledge base. Always base your answers on the available documents, quote relevant passages when helpful, and clearly state when information is not found in the sources. Never fabricate information.`,
+    },
+    {
+      id: 'support',
+      name: 'Customer Support',
+      prompt: `You are a customer support specialist powered by Verse AI. You help users resolve issues, answer product questions, and guide them step by step. Be empathetic, patient, and solution-focused. Acknowledge the user's concern before providing a resolution. If you cannot resolve an issue, clearly explain what information is needed or suggest next steps.`,
+    },
+    {
+      id: 'hr',
+      name: 'HR & Onboarding',
+      prompt: `You are an HR and onboarding assistant powered by Verse AI. You help employees understand company policies, benefits, processes, and answer common HR-related questions. You have access to company documents and handbooks. Be welcoming and supportive, especially with new team members starting their journey at the organization.`,
+    },
+  ],
+  pt: [
+    {
+      id: 'general',
+      name: 'Assistente Geral',
+      prompt: `Você é um assistente de IA prestativo, desenvolvido pela Verse AI. Você ajuda os usuários a encontrar informações, responde perguntas de forma clara e objetiva, e oferece orientações cuidadosas. Quando conectado a uma base de conhecimento, utilize-a para fornecer respostas precisas e fundamentadas. Seja profissional, amigável e honesto sobre os limites do seu conhecimento.`,
+    },
+    {
+      id: 'doc-qa',
+      name: 'Consulta em Documentos',
+      prompt: `Você é um especialista em análise de documentos desenvolvido pela Verse AI. Sua função principal é responder perguntas com base nos documentos da base de conhecimento. Sempre fundamente suas respostas nos documentos disponíveis, cite trechos relevantes quando útil e deixe claro quando a informação não for encontrada nas fontes. Nunca invente informações.`,
+    },
+    {
+      id: 'support',
+      name: 'Suporte ao Cliente',
+      prompt: `Você é um especialista em suporte ao cliente, desenvolvido pela Verse AI. Você ajuda os usuários a resolver problemas, responde dúvidas e os guia passo a passo. Seja empático, paciente e focado em soluções. Reconheça a preocupação do usuário antes de apresentar uma resolução. Caso não consiga resolver, informe claramente quais informações adicionais são necessárias ou sugira os próximos passos.`,
+    },
+    {
+      id: 'hr',
+      name: 'RH & Integração',
+      prompt: `Você é um assistente de RH e integração, desenvolvido pela Verse AI. Você ajuda os colaboradores a entender políticas da empresa, benefícios, processos e responde dúvidas comuns de RH. Você tem acesso aos documentos e manuais da empresa. Seja acolhedor e prestativo, especialmente com os novos membros que estão iniciando sua jornada na organização.`,
+    },
+  ],
+};
+
 // ── Types ─────────────────────────────────────────────────────────────
 interface Assistant {
   id: string;
@@ -322,8 +370,9 @@ function VersionsPanel({
 
 // ── Main Playground Page ───────────────────────────────────────────────
 export default function PlaygroundPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: assistants, mutate: mutateAssistants } = useSWR<Assistant[]>('/assistants', fetcher);
+  const templates = PROMPT_TEMPLATES[i18n.language.startsWith('pt') ? 'pt' : 'en'];
 
   const [view, setView] = useState<'config' | 'versions'>('config');
 
@@ -335,6 +384,8 @@ export default function PlaygroundPage() {
   const [maxTokens, setMaxTokens] = useState(2048);
   const [ragEnabled, setRagEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savedConfig, setSavedConfig] = useState({ systemPrompt: '', temperature: 0.7, maxTokens: 2048, ragEnabled: true });
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
 
   // Version snapshot flow
   const [versions, setVersions] = useState<PromptVersion[]>([]);
@@ -372,6 +423,7 @@ export default function PlaygroundPage() {
       setTemperature(first.temperature);
       setMaxTokens(first.maxTokens);
       setRagEnabled(first.ragEnabled);
+      setSavedConfig({ systemPrompt: first.systemPrompt, temperature: first.temperature, maxTokens: first.maxTokens, ragEnabled: first.ragEnabled });
     }
   }, [assistants, selectedId]);
 
@@ -401,6 +453,8 @@ export default function PlaygroundPage() {
     setTemperature(a.temperature);
     setMaxTokens(a.maxTokens);
     setRagEnabled(a.ragEnabled);
+    setSavedConfig({ systemPrompt: a.systemPrompt, temperature: a.temperature, maxTokens: a.maxTokens, ragEnabled: a.ragEnabled });
+    setActiveTemplateId(null);
     setShowVersionPrompt(false);
     clearConversation();
   };
@@ -420,6 +474,7 @@ export default function PlaygroundPage() {
       mutateAssistants((prev) =>
         prev?.map((a) => (a.id === selectedId ? { ...a, ...res.data } : a)), false,
       );
+      setSavedConfig({ systemPrompt, temperature, maxTokens, ragEnabled });
       // Suggest next version label then show prompt
       const nextNum = versions.length + 1;
       setVersionLabel(nextNum === 1 ? t('playground.initialPromptLabel') : t('playground.updateLabel', { num: nextNum }));
@@ -485,6 +540,7 @@ export default function PlaygroundPage() {
       mutateAssistants((prev) =>
         prev?.map((a) => (a.id === selectedId ? { ...a, ...res.data } : a)), false,
       );
+      setSavedConfig({ systemPrompt: v.systemPrompt, temperature: v.temperature, maxTokens: v.maxTokens, ragEnabled: v.ragEnabled });
     } catch { /* silent */ }
     setRestoreToast(true);
     setTimeout(() => setRestoreToast(false), 3000);
@@ -620,6 +676,12 @@ export default function PlaygroundPage() {
     return () => { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); };
   }, []);
 
+  const isDirty =
+    systemPrompt !== savedConfig.systemPrompt ||
+    temperature !== savedConfig.temperature ||
+    maxTokens !== savedConfig.maxTokens ||
+    ragEnabled !== savedConfig.ragEnabled;
+
   const allMessages = streamingMsg ? [...messages, streamingMsg] : messages;
 
   if (!assistants) return <SkeletonPlayground />;
@@ -637,7 +699,7 @@ export default function PlaygroundPage() {
           {view === 'config' && (
             <button
               onClick={saveConfig}
-              disabled={saving || !selectedId}
+              disabled={saving || !selectedId || !isDirty}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all bg-[#06d4ef]/15 border border-[#06d4ef]/30 text-[#06d4ef] hover:bg-[#06d4ef]/25 disabled:opacity-40"
             >
               {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
@@ -783,12 +845,34 @@ export default function PlaygroundPage() {
               <div className="h-px bg-slate-800/60" />
 
               {/* System message */}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('playground.systemMessage')}</label>
+
+                {/* Template picker */}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-slate-600">{t('playground.quickTemplatesHint')}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {templates.map((tpl) => (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => { setSystemPrompt(tpl.prompt); setActiveTemplateId(tpl.id); }}
+                        className={`px-2.5 py-1 rounded-lg text-[10.5px] font-medium border transition-all ${
+                          activeTemplateId === tpl.id
+                            ? 'bg-[#06d4ef]/15 border-[#06d4ef]/40 text-[#06d4ef]'
+                            : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                        }`}
+                      >
+                        {tpl.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <textarea
                   ref={textareaRef}
                   value={systemPrompt}
-                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  onChange={(e) => { setSystemPrompt(e.target.value); setActiveTemplateId(null); }}
                   rows={6}
                   placeholder={t('playground.describePromptPlaceholder')}
                   className="w-full bg-[#16191e] border border-slate-700/80 rounded-xl px-3.5 py-3 text-[12.5px] text-slate-200 placeholder:text-slate-600 outline-none focus:border-[#06d4ef]/50 transition-colors resize-none leading-relaxed"
